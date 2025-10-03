@@ -5,6 +5,7 @@ export interface Exercise {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   duration: string;
   equipment: string;
+  video?: string;
 }
 
 export const exercises: Exercise[] = [
@@ -15,7 +16,8 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Chest',
     difficulty: 'Beginner',
     duration: '3 sets x 10-15 reps',
-    equipment: 'Bodyweight'
+    equipment: 'Bodyweight',
+    video: '/src/assets/pushups-video.mp4'
   },
   {
     id: '2',

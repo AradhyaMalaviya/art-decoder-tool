@@ -8,6 +8,7 @@ interface Exercise {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   duration: string;
   equipment: string;
+  video?: string;
 }
 
 interface ExerciseCardProps {
@@ -26,6 +27,18 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
 
   return (
     <Card className="group overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 animate-slide-up">
+      {exercise.video && (
+        <div className="relative w-full aspect-video bg-black/20">
+          <video 
+            src={exercise.video} 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <div className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
