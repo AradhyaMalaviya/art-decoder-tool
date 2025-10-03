@@ -25,7 +25,8 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Chest',
     difficulty: 'Intermediate',
     duration: '4 sets x 8-12 reps',
-    equipment: 'Barbell'
+    equipment: 'Barbell',
+    video: '/src/assets/benchpress-video.mp4'
   },
   {
     id: '3',
