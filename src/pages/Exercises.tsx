@@ -8,14 +8,28 @@ const Exercises = () => {
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Order exercises by difficulty: Beginner -> Intermediate -> Advanced
+  const difficultyOrder = {
+    Beginner: 0,
+    Intermediate: 1,
+    Advanced: 2,
+  } as const;
+
   const filteredExercises = useMemo(() => {
-    return exercises.filter(exercise => {
-      const matchesGroup = selectedMuscleGroup === "All" || exercise.muscleGroup === selectedMuscleGroup;
-      const matchesSearch = exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           exercise.muscleGroup.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           exercise.equipment.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesGroup && matchesSearch;
-    });
+    return exercises
+      .filter(exercise => {
+        const matchesGroup = selectedMuscleGroup === "All" || exercise.muscleGroup === selectedMuscleGroup;
+        const matchesSearch = exercise.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             exercise.muscleGroup.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             exercise.equipment.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesGroup && matchesSearch;
+      })
+      .sort((a, b) => {
+        const aRank = difficultyOrder[a.difficulty as keyof typeof difficultyOrder];
+        const bRank = difficultyOrder[b.difficulty as keyof typeof difficultyOrder];
+        if (aRank !== bRank) return aRank - bRank;
+        return a.name.localeCompare(b.name);
+      });
   }, [selectedMuscleGroup, searchTerm]);
 
   return (
