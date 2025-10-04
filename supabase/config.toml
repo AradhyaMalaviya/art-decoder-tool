@@ -1,1 +1,4 @@
 project_id = "xmbardirxjhdamaeiuhx"
+
+[functions.fitness-chat]
+verify_jwt = false
