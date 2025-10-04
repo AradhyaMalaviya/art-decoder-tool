@@ -9,6 +9,7 @@ interface Exercise {
   duration: string;
   equipment: string;
   video?: string;
+  description?: string;
 }
 
 interface ExerciseCardProps {
@@ -48,6 +49,12 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
             {exercise.difficulty}
           </Badge>
         </div>
+        
+        {exercise.description && (
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {exercise.description}
+          </p>
+        )}
         
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
