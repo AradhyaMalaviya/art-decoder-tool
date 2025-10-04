@@ -137,7 +137,7 @@ export const FitnessChat = () => {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-lg bg-primary hover:bg-primary/90"
+        className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-lg bg-primary hover:bg-primary/90 z-50"
         size="icon"
       >
         <span className="text-2xl">💪</span>
@@ -146,7 +146,15 @@ export const FitnessChat = () => {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-2xl border-2 border-primary/50 bg-background backdrop-blur-xl">
+    <>
+      {/* Backdrop overlay */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
+        onClick={() => setIsOpen(false)}
+      />
+      
+      {/* Chat card */}
+      <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-2xl border-2 border-primary/50 bg-background z-[70]">
       <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground">
         <h3 className="font-semibold">Fitness Coach AI</h3>
         <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="hover:bg-primary-foreground/20 text-primary-foreground">
@@ -190,5 +198,6 @@ export const FitnessChat = () => {
         </div>
       </div>
     </Card>
+    </>
   );
 };
