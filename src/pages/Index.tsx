@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeroSection } from "@/components/HeroSection";
+import { FitnessChat } from "@/components/FitnessChat";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
@@ -10,6 +11,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      
+      {/* AI Fitness Chat */}
+      <FitnessChat />
       
       {/* Feature Cards */}
       <section className="py-12 px-6">
