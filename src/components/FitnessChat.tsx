@@ -146,25 +146,25 @@ export const FitnessChat = () => {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-xl border-primary/20">
-      <div className="flex items-center justify-between p-4 border-b bg-primary/5">
-        <h3 className="font-semibold text-foreground">Fitness Coach AI</h3>
-        <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+    <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-2xl border-2 border-primary/50 bg-background backdrop-blur-xl">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground">
+        <h3 className="font-semibold">Fitness Coach AI</h3>
+        <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="hover:bg-primary-foreground/20 text-primary-foreground">
           <X className="h-4 w-4" />
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-card">
         {messages.map((msg, idx) => (
           <div
             key={idx}
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
+              className={`max-w-[80%] rounded-lg p-3 shadow-md ${
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground"
+                  : "bg-background border-2 border-border text-foreground"
               }`}
             >
               {msg.content}
@@ -174,7 +174,7 @@ export const FitnessChat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-border bg-background">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -182,9 +182,9 @@ export const FitnessChat = () => {
             onKeyPress={handleKeyPress}
             placeholder="Type your answer..."
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 bg-card border-border"
           />
-          <Button onClick={sendMessage} disabled={isLoading || !input.trim()} size="icon">
+          <Button onClick={sendMessage} disabled={isLoading || !input.trim()} size="icon" className="bg-primary hover:bg-primary/90">
             <Send className="h-4 w-4" />
           </Button>
         </div>
