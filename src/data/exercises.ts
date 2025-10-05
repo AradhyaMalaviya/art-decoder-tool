@@ -49,7 +49,62 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Back',
     difficulty: 'Beginner',
     duration: '3 sets x 10-15 reps',
-    equipment: 'Cable Machine'
+    equipment: 'Cable Machine',
+    description: 'The machine provides stability, making it easy to learn the vertical pulling motion and focus on squeezing your lats'
+  },
+  {
+    id: '49',
+    name: 'Supermans',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Bodyweight',
+    description: 'A simple, low-impact bodyweight exercise that helps you learn to activate your lower back and glute muscles'
+  },
+  {
+    id: '50',
+    name: 'Back Extensions (Hyperextensions)',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Machine',
+    description: 'The machine supports your body, isolating the lower back for a controlled movement'
+  },
+  {
+    id: '51',
+    name: 'Seated Cable Rows',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 10-15 reps',
+    equipment: 'Cable Machine',
+    description: 'A stable, seated movement that is excellent for building thickness in the mid-back and learning horizontal rowing form'
+  },
+  {
+    id: '52',
+    name: 'Chest Supported Rows',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 10-15 reps',
+    equipment: 'Machine',
+    description: 'Supporting your chest on a bench completely removes momentum and protects your lower back, making it one of the safest ways to learn how to row'
+  },
+  {
+    id: '53',
+    name: 'Dumbbell Shrugs',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Dumbbells',
+    description: 'A very simple isolation movement that is easy to learn and targets the traps'
+  },
+  {
+    id: '54',
+    name: 'Barbell Shrugs',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Barbell',
+    description: 'A simple isolation movement for building trap muscles'
   },
 
   // Beginner - Legs
@@ -332,11 +387,57 @@ export const exercises: Exercise[] = [
   // Intermediate - Back
   {
     id: '5',
-    name: 'Bent-over Rows',
+    name: 'Dumbbell Row',
     muscleGroup: 'Back',
     difficulty: 'Intermediate',
     duration: '4 sets x 8-12 reps',
-    equipment: 'Barbell'
+    equipment: 'Dumbbells',
+    description: 'This free-weight exercise requires you to stabilize your own torso and resist rotation, engaging your core more than a machine row'
+  },
+  {
+    id: '55',
+    name: 'Inverted Row',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 8-12 reps',
+    equipment: 'Bodyweight',
+    description: 'A bodyweight row that requires significant core and back strength. A perfect stepping stone to eventually doing pull-ups'
+  },
+  {
+    id: '56',
+    name: 'Face Pulls',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Cable Machine',
+    description: 'Requires good technique to ensure you\'re targeting the upper back muscles correctly and not straining your shoulders'
+  },
+  {
+    id: '57',
+    name: 'T-Bar Rows',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '4 sets x 8-12 reps',
+    equipment: 'Barbell',
+    description: 'This variation of a row requires good lower back stability and proper hip hinge technique'
+  },
+  {
+    id: '58',
+    name: 'Chin-Ups',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 6-10 reps',
+    equipment: 'Pull-up Bar',
+    description: 'The first major bodyweight vertical pull. Slightly easier than a pull-up due to greater bicep involvement'
+  },
+  {
+    id: '59',
+    name: 'Upright Row',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 10-12 reps',
+    equipment: 'Barbell',
+    description: 'Requires careful form to avoid shoulder impingement. Demands more coordination and control than simple shrugs'
   },
 
   // Intermediate - Legs
@@ -452,16 +553,45 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Back',
     difficulty: 'Advanced',
     duration: '3 sets x 5-10 reps',
-    equipment: 'Pull-up Bar'
+    equipment: 'Pull-up Bar',
+    description: 'The quintessential test of upper body pulling strength. Using a wider, overhand grip isolates the lats more'
+  },
+  {
+    id: '60',
+    name: 'Barbell Bent Over Row',
+    muscleGroup: 'Back',
+    difficulty: 'Advanced',
+    duration: '4 sets x 6-10 reps',
+    equipment: 'Barbell',
+    description: 'A major compound lift that requires immense core and lower back strength to maintain a rigid, flat back. Proper hip hinge technique is critical'
+  },
+  {
+    id: '61',
+    name: 'Good Mornings',
+    muscleGroup: 'Back',
+    difficulty: 'Advanced',
+    duration: '3 sets x 8-10 reps',
+    equipment: 'Barbell',
+    description: 'A highly technical lift that directly loads the lower back. Requires excellent form and control to perform safely'
+  },
+  {
+    id: '62',
+    name: 'Deadlifts',
+    muscleGroup: 'Back',
+    difficulty: 'Advanced',
+    duration: '4 sets x 5-8 reps',
+    equipment: 'Barbell',
+    description: 'The king of all exercises. The most technically demanding lift that requires precise form, full-body tension, and strong understanding of bracing'
   },
 
   // Advanced - Legs
   {
-    id: '8',
-    name: 'Deadlifts',
+    id: '63',
+    name: 'Bulgarian Split Squats',
     muscleGroup: 'Legs',
     difficulty: 'Advanced',
-    duration: '4 sets x 5-8 reps',
-    equipment: 'Barbell'
+    duration: '3 sets x 8-10 reps each leg',
+    equipment: 'Dumbbells',
+    description: 'A challenging single-leg exercise that requires balance and strength'
   }
 ];
