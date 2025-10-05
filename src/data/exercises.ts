@@ -10,7 +10,9 @@ export interface Exercise {
 }
 
 export const exercises: Exercise[] = [
-  // Chest Exercises
+  // ========== BEGINNER EXERCISES ==========
+  
+  // Beginner - Chest
   {
     id: '1',
     name: 'Push-ups',
@@ -21,6 +23,94 @@ export const exercises: Exercise[] = [
     video: '/src/assets/pushups-video.mp4',
     description: 'A fundamental bodyweight exercise for chest development'
   },
+  {
+    id: '38',
+    name: 'Incline Push-Up',
+    muscleGroup: 'Chest',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Bodyweight',
+    description: 'An easier variation of push-ups'
+  },
+  {
+    id: '42',
+    name: 'Stair Press-Up',
+    muscleGroup: 'Chest',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Bodyweight',
+    description: 'A convenient way to do incline or decline push-ups'
+  },
+
+  // Beginner - Back
+  {
+    id: '6',
+    name: 'Lat Pulldowns',
+    muscleGroup: 'Back',
+    difficulty: 'Beginner',
+    duration: '3 sets x 10-15 reps',
+    equipment: 'Cable Machine'
+  },
+
+  // Beginner - Legs
+  {
+    id: '7',
+    name: 'Squats',
+    muscleGroup: 'Legs',
+    difficulty: 'Beginner',
+    duration: '4 sets x 12-15 reps',
+    equipment: 'Bodyweight'
+  },
+
+  // Beginner - Arms
+  {
+    id: '10',
+    name: 'Bicep Curls',
+    muscleGroup: 'Arms',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Dumbbells'
+  },
+  {
+    id: '12',
+    name: 'Hammer Curls',
+    muscleGroup: 'Arms',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Dumbbells'
+  },
+
+  // Beginner - Shoulders
+  {
+    id: '14',
+    name: 'Lateral Raises',
+    muscleGroup: 'Shoulders',
+    difficulty: 'Beginner',
+    duration: '3 sets x 12-15 reps',
+    equipment: 'Dumbbells'
+  },
+
+  // Beginner - Core
+  {
+    id: '16',
+    name: 'Plank',
+    muscleGroup: 'Core',
+    difficulty: 'Beginner',
+    duration: '3 sets x 30-60 seconds',
+    equipment: 'Bodyweight'
+  },
+  {
+    id: '18',
+    name: 'Dead Bug',
+    muscleGroup: 'Core',
+    difficulty: 'Beginner',
+    duration: '3 sets x 10 each side',
+    equipment: 'Bodyweight'
+  },
+
+  // ========== INTERMEDIATE EXERCISES ==========
+
+  // Intermediate - Chest
   {
     id: '2',
     name: 'Bench Press',
@@ -167,15 +257,6 @@ export const exercises: Exercise[] = [
     description: 'By keeping your palms facing each other, you can reduce shoulder strain and target the chest differently'
   },
   {
-    id: '33',
-    name: 'Reverse Grip Dumbbell Squeeze Press',
-    muscleGroup: 'Chest',
-    difficulty: 'Advanced',
-    duration: '3 sets x 8-10 reps',
-    equipment: 'Dumbbells',
-    description: 'An interesting variation to challenge your muscles in a new way'
-  },
-  {
     id: '34',
     name: 'Dumbbell Twist Press',
     muscleGroup: 'Chest',
@@ -203,24 +284,6 @@ export const exercises: Exercise[] = [
     description: 'To focus on the lower chest'
   },
   {
-    id: '37',
-    name: 'Guillotine Press',
-    muscleGroup: 'Chest',
-    difficulty: 'Advanced',
-    duration: '3 sets x 8-10 reps',
-    equipment: 'Barbell',
-    description: 'A variation where you lower the bar to your neck, creating a greater stretch in the pecs'
-  },
-  {
-    id: '38',
-    name: 'Incline Push-Up',
-    muscleGroup: 'Chest',
-    difficulty: 'Beginner',
-    duration: '3 sets x 12-15 reps',
-    equipment: 'Bodyweight',
-    description: 'An easier variation of push-ups'
-  },
-  {
     id: '39',
     name: 'Decline Push-Up',
     muscleGroup: 'Chest',
@@ -228,33 +291,6 @@ export const exercises: Exercise[] = [
     duration: '3 sets x 10-12 reps',
     equipment: 'Bodyweight',
     description: 'A more challenging variation that targets the upper chest'
-  },
-  {
-    id: '40',
-    name: 'Clap Press-Up',
-    muscleGroup: 'Chest',
-    difficulty: 'Advanced',
-    duration: '3 sets x 8-10 reps',
-    equipment: 'Bodyweight',
-    description: 'An explosive variation for power development'
-  },
-  {
-    id: '41',
-    name: 'Spiderman Press-Up',
-    muscleGroup: 'Chest',
-    difficulty: 'Advanced',
-    duration: '3 sets x 10-12 reps',
-    equipment: 'Bodyweight',
-    description: 'Adds a core and hip flexor challenge'
-  },
-  {
-    id: '42',
-    name: 'Stair Press-Up',
-    muscleGroup: 'Chest',
-    difficulty: 'Beginner',
-    duration: '3 sets x 12-15 reps',
-    equipment: 'Bodyweight',
-    description: 'A convenient way to do incline or decline push-ups'
   },
   {
     id: '43',
@@ -292,6 +328,104 @@ export const exercises: Exercise[] = [
     equipment: 'Medicine Ball',
     description: 'A dynamic and explosive exercise'
   },
+
+  // Intermediate - Back
+  {
+    id: '5',
+    name: 'Bent-over Rows',
+    muscleGroup: 'Back',
+    difficulty: 'Intermediate',
+    duration: '4 sets x 8-12 reps',
+    equipment: 'Barbell'
+  },
+
+  // Intermediate - Legs
+  {
+    id: '9',
+    name: 'Lunges',
+    muscleGroup: 'Legs',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 12 reps each leg',
+    equipment: 'Dumbbells'
+  },
+
+  // Intermediate - Arms
+  {
+    id: '11',
+    name: 'Tricep Dips',
+    muscleGroup: 'Arms',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 10-12 reps',
+    equipment: 'Bench'
+  },
+
+  // Intermediate - Shoulders
+  {
+    id: '13',
+    name: 'Shoulder Press',
+    muscleGroup: 'Shoulders',
+    difficulty: 'Intermediate',
+    duration: '4 sets x 8-12 reps',
+    equipment: 'Dumbbells'
+  },
+  {
+    id: '15',
+    name: 'Pike Push-ups',
+    muscleGroup: 'Shoulders',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 8-12 reps',
+    equipment: 'Bodyweight'
+  },
+
+  // Intermediate - Core
+  {
+    id: '17',
+    name: 'Russian Twists',
+    muscleGroup: 'Core',
+    difficulty: 'Intermediate',
+    duration: '3 sets x 20 reps',
+    equipment: 'Medicine Ball'
+  },
+
+  // ========== ADVANCED EXERCISES ==========
+
+  // Advanced - Chest
+  {
+    id: '33',
+    name: 'Reverse Grip Dumbbell Squeeze Press',
+    muscleGroup: 'Chest',
+    difficulty: 'Advanced',
+    duration: '3 sets x 8-10 reps',
+    equipment: 'Dumbbells',
+    description: 'An interesting variation to challenge your muscles in a new way'
+  },
+  {
+    id: '37',
+    name: 'Guillotine Press',
+    muscleGroup: 'Chest',
+    difficulty: 'Advanced',
+    duration: '3 sets x 8-10 reps',
+    equipment: 'Barbell',
+    description: 'A variation where you lower the bar to your neck, creating a greater stretch in the pecs'
+  },
+  {
+    id: '40',
+    name: 'Clap Press-Up',
+    muscleGroup: 'Chest',
+    difficulty: 'Advanced',
+    duration: '3 sets x 8-10 reps',
+    equipment: 'Bodyweight',
+    description: 'An explosive variation for power development'
+  },
+  {
+    id: '41',
+    name: 'Spiderman Press-Up',
+    muscleGroup: 'Chest',
+    difficulty: 'Advanced',
+    duration: '3 sets x 10-12 reps',
+    equipment: 'Bodyweight',
+    description: 'Adds a core and hip flexor challenge'
+  },
   {
     id: '47',
     name: 'Bosu Ball Push Up',
@@ -311,7 +445,7 @@ export const exercises: Exercise[] = [
     description: 'Another way to add instability and increase the difficulty of the push-up'
   },
 
-  // Back Exercises
+  // Advanced - Back
   {
     id: '4',
     name: 'Pull-ups',
@@ -320,32 +454,8 @@ export const exercises: Exercise[] = [
     duration: '3 sets x 5-10 reps',
     equipment: 'Pull-up Bar'
   },
-  {
-    id: '5',
-    name: 'Bent-over Rows',
-    muscleGroup: 'Back',
-    difficulty: 'Intermediate',
-    duration: '4 sets x 8-12 reps',
-    equipment: 'Barbell'
-  },
-  {
-    id: '6',
-    name: 'Lat Pulldowns',
-    muscleGroup: 'Back',
-    difficulty: 'Beginner',
-    duration: '3 sets x 10-15 reps',
-    equipment: 'Cable Machine'
-  },
 
-  // Legs Exercises
-  {
-    id: '7',
-    name: 'Squats',
-    muscleGroup: 'Legs',
-    difficulty: 'Beginner',
-    duration: '4 sets x 12-15 reps',
-    equipment: 'Bodyweight'
-  },
+  // Advanced - Legs
   {
     id: '8',
     name: 'Deadlifts',
@@ -353,91 +463,5 @@ export const exercises: Exercise[] = [
     difficulty: 'Advanced',
     duration: '4 sets x 5-8 reps',
     equipment: 'Barbell'
-  },
-  {
-    id: '9',
-    name: 'Lunges',
-    muscleGroup: 'Legs',
-    difficulty: 'Intermediate',
-    duration: '3 sets x 12 reps each leg',
-    equipment: 'Dumbbells'
-  },
-
-  // Arms Exercises
-  {
-    id: '10',
-    name: 'Bicep Curls',
-    muscleGroup: 'Arms',
-    difficulty: 'Beginner',
-    duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
-  },
-  {
-    id: '11',
-    name: 'Tricep Dips',
-    muscleGroup: 'Arms',
-    difficulty: 'Intermediate',
-    duration: '3 sets x 10-12 reps',
-    equipment: 'Bench'
-  },
-  {
-    id: '12',
-    name: 'Hammer Curls',
-    muscleGroup: 'Arms',
-    difficulty: 'Beginner',
-    duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
-  },
-
-  // Shoulders Exercises
-  {
-    id: '13',
-    name: 'Shoulder Press',
-    muscleGroup: 'Shoulders',
-    difficulty: 'Intermediate',
-    duration: '4 sets x 8-12 reps',
-    equipment: 'Dumbbells'
-  },
-  {
-    id: '14',
-    name: 'Lateral Raises',
-    muscleGroup: 'Shoulders',
-    difficulty: 'Beginner',
-    duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
-  },
-  {
-    id: '15',
-    name: 'Pike Push-ups',
-    muscleGroup: 'Shoulders',
-    difficulty: 'Intermediate',
-    duration: '3 sets x 8-12 reps',
-    equipment: 'Bodyweight'
-  },
-
-  // Core Exercises
-  {
-    id: '16',
-    name: 'Plank',
-    muscleGroup: 'Core',
-    difficulty: 'Beginner',
-    duration: '3 sets x 30-60 seconds',
-    equipment: 'Bodyweight'
-  },
-  {
-    id: '17',
-    name: 'Russian Twists',
-    muscleGroup: 'Core',
-    difficulty: 'Intermediate',
-    duration: '3 sets x 20 reps',
-    equipment: 'Medicine Ball'
-  },
-  {
-    id: '18',
-    name: 'Dead Bug',
-    muscleGroup: 'Core',
-    difficulty: 'Beginner',
-    duration: '3 sets x 10 each side',
-    equipment: 'Bodyweight'
   }
 ];
