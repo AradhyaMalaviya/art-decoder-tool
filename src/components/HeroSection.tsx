@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/fitness-hero.jpg";
 
 interface HeroSectionProps {
@@ -44,19 +45,23 @@ export const HeroSection = ({ searchTerm, onSearchChange }: HeroSectionProps) =>
         
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            size="lg" 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105"
-          >
-            Start Training
-          </Button>
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
-          >
-            Browse Exercises
-          </Button>
+          <Link to="/start-training">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-primary/30 transition-all duration-300 hover:scale-105"
+            >
+              Start Training
+            </Button>
+          </Link>
+          <Link to="/exercises">
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+            >
+              Browse Exercises
+            </Button>
+          </Link>
         </div>
       </div>
       
