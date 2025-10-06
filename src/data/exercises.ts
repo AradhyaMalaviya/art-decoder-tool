@@ -124,7 +124,8 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Arms',
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
+    equipment: 'Dumbbells',
+    video: '/src/assets/bicep-curls-video.mp4'
   },
   {
     id: '12',
