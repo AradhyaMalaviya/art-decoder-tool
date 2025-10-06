@@ -133,7 +133,8 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Arms',
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
+    equipment: 'Dumbbells',
+    video: '/src/assets/hammer-curls-video.mp4'
   },
 
   // Beginner - Shoulders
@@ -458,7 +459,8 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Arms',
     difficulty: 'Intermediate',
     duration: '3 sets x 10-12 reps',
-    equipment: 'Bench'
+    equipment: 'Bench',
+    video: '/src/assets/tricep-dips-video.mp4'
   },
 
   // Intermediate - Shoulders
