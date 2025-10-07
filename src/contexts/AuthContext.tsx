@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Check for existing session
-    const storedUser = localStorage.getItem('muscleHowUser');
+    const storedUser = localStorage.getItem('fitBoxUser');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
 
       setUser(newUser);
-      localStorage.setItem('muscleHowUser', JSON.stringify(newUser));
+      localStorage.setItem('fitBoxUser', JSON.stringify(newUser));
 
       return { success: true };
     } catch (error: any) {
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
 
       setUser(existingUser);
-      localStorage.setItem('muscleHowUser', JSON.stringify(existingUser));
+      localStorage.setItem('fitBoxUser', JSON.stringify(existingUser));
 
       return { success: true };
     } catch (error: any) {
@@ -121,12 +121,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setUser(guestUser);
-    localStorage.setItem('muscleHowUser', JSON.stringify(guestUser));
+    localStorage.setItem('fitBoxUser', JSON.stringify(guestUser));
   };
 
   const signOut = () => {
     setUser(null);
-    localStorage.removeItem('muscleHowUser');
+    localStorage.removeItem('fitBoxUser');
   };
 
   return (

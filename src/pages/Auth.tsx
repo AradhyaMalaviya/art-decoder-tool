@@ -108,7 +108,7 @@ const Auth = () => {
             <Dumbbell className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-3xl font-bold">
-            {mode === 'welcome' && 'Welcome to MuscleHow'}
+            {mode === 'welcome' && 'Welcome to FitBox'}
             {mode === 'signup' && 'Create Account'}
             {mode === 'signin' && 'Sign In'}
             {mode === 'guest' && 'Continue as Guest'}
