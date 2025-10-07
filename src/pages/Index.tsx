@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { FitnessChat } from "@/components/FitnessChat";
 import { exercises } from "@/data/exercises";
@@ -9,6 +10,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       {/* Hero Section */}
       <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
       

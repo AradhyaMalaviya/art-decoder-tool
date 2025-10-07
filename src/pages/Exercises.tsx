@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Header } from "@/components/Header";
 import { MuscleGroupFilter } from "@/components/MuscleGroupFilter";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { exercises } from "@/data/exercises";
@@ -20,6 +21,7 @@ const Exercises = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       {/* Header */}
       <header className="py-8 px-6 border-b border-border/50 bg-card/30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">

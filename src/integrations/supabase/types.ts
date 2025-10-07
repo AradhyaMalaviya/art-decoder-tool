@@ -14,7 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          phone_number: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phone_number: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phone_number?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          created_at: string
+          duration: string | null
+          exercise_name: string
+          id: string
+          muscle_group: string | null
+          notes: string | null
+          reps: number | null
+          sets: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: string | null
+          exercise_name: string
+          id?: string
+          muscle_group?: string | null
+          notes?: string | null
+          reps?: number | null
+          sets?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string | null
+          exercise_name?: string
+          id?: string
+          muscle_group?: string | null
+          notes?: string | null
+          reps?: number | null
+          sets?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
