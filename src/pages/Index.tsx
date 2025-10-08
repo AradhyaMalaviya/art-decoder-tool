@@ -41,25 +41,23 @@ const Index = () => {
             </Link>
 
             {/* Nutrition Card */}
-            <a 
-              href="https://www.healthline.com/nutrition" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <Link 
+              to="/nutrition"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-fitness-green/20 to-fitness-green/5 border border-fitness-green/30 p-8 hover:shadow-xl hover:shadow-fitness-green/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
               <div className="relative z-10">
                 <div className="text-5xl mb-4">🥗</div>
                 <h3 className="text-2xl font-bold text-foreground mb-2">Nutrition</h3>
                 <p className="text-muted-foreground">
-                  Learn about healthy eating and nutrition tips for optimal performance
+                  Get personalized nutrition plans for muscle building
                 </p>
               </div>
               <div className="absolute top-4 right-4 text-fitness-green opacity-0 group-hover:opacity-100 transition-opacity">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

@@ -9,6 +9,9 @@ import Exercises from "./pages/Exercises";
 import StartTraining from "./pages/StartTraining";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Nutrition from "./pages/Nutrition";
+import NutritionQuestionnaire from "./pages/NutritionQuestionnaire";
+import NutritionRoadmap from "./pages/NutritionRoadmap";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +41,9 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
             <Route path="/start-training" element={<ProtectedRoute><StartTraining /></ProtectedRoute>} />
+            <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
+            <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />
+            <Route path="/nutrition/roadmap" element={<ProtectedRoute><NutritionRoadmap /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
