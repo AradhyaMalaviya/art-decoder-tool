@@ -4,11 +4,20 @@ import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { FitnessChat } from "@/components/FitnessChat";
 import { BodyDiagram } from "@/components/BodyDiagram";
+import { ExerciseModal } from "@/components/ExerciseModal";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleMuscleSelect = (muscle: string) => {
+    setSelectedMuscle(muscle);
+    if (muscle) {
+      setIsModalOpen(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,24 +32,27 @@ const Index = () => {
       <section className="py-16 px-6 bg-gradient-to-b from-background to-card/30">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Select a Muscle Group
+            Interactive Muscle Encyclopedia
           </h2>
-          <p className="text-center text-muted-foreground mb-8">
-            Click on any muscle group to explore targeted exercises
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Click on any muscle group to explore targeted exercises with video demonstrations, difficulty levels, and equipment requirements
           </p>
           <BodyDiagram 
-            onMuscleSelect={setSelectedMuscle} 
+            onMuscleSelect={handleMuscleSelect} 
             selectedMuscle={selectedMuscle}
           />
-          {selectedMuscle && (
-            <div className="text-center mt-6">
-              <p className="text-lg text-foreground">
-                Selected: <span className="font-bold capitalize">{selectedMuscle.replace(/-/g, ' ')}</span>
-              </p>
-            </div>
-          )}
         </div>
       </section>
+
+      {/* Exercise Modal */}
+      <ExerciseModal 
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedMuscle(null);
+        }}
+        muscleGroup={selectedMuscle}
+      />
       
       {/* Feature Cards */}
       <section className="py-12 px-6">
