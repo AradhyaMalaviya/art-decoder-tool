@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { FitnessChat } from "@/components/FitnessChat";
+import { BodyDiagram } from "@/components/BodyDiagram";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -16,6 +18,29 @@ const Index = () => {
       
       {/* AI Fitness Chat */}
       <FitnessChat />
+      
+      {/* Interactive Body Diagram */}
+      <section className="py-16 px-6 bg-gradient-to-b from-background to-card/30">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
+            Select a Muscle Group
+          </h2>
+          <p className="text-center text-muted-foreground mb-8">
+            Click on any muscle group to explore targeted exercises
+          </p>
+          <BodyDiagram 
+            onMuscleSelect={setSelectedMuscle} 
+            selectedMuscle={selectedMuscle}
+          />
+          {selectedMuscle && (
+            <div className="text-center mt-6">
+              <p className="text-lg text-foreground">
+                Selected: <span className="font-bold capitalize">{selectedMuscle.replace(/-/g, ' ')}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
       
       {/* Feature Cards */}
       <section className="py-12 px-6">
