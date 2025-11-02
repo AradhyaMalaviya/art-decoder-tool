@@ -162,22 +162,104 @@ export const FitnessChat = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-card">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+        {messages.map((msg, idx) => {
+          const renderMessageContent = (content: string) => {
+            // Detect YouTube links in markdown format [text](url) or plain URLs
+            const urlRegex = /(https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^\s)]+)/g;
+            const markdownRegex = /\[([^\]]+)\]\((https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^)]+)\)/g;
+            
+            const parts: (string | JSX.Element)[] = [];
+            let lastIndex = 0;
+            let match;
+
+            // First check for markdown-style links
+            const mdMatches = Array.from(content.matchAll(markdownRegex));
+            if (mdMatches.length > 0) {
+              mdMatches.forEach((mdMatch, i) => {
+                const [fullMatch, linkText, url] = mdMatch;
+                const index = mdMatch.index!;
+                
+                if (index > lastIndex) {
+                  parts.push(content.substring(lastIndex, index));
+                }
+                
+                parts.push(
+                  <a
+                    key={`link-${idx}-${i}`}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 animate-pulse inline-block mx-1"
+                    style={{
+                      textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    🎥 {linkText}
+                  </a>
+                );
+                
+                lastIndex = index + fullMatch.length;
+              });
+              
+              if (lastIndex < content.length) {
+                parts.push(content.substring(lastIndex));
+              }
+              
+              return <>{parts}</>;
+            }
+
+            // Fallback to plain URL detection
+            while ((match = urlRegex.exec(content)) !== null) {
+              const url = match[0];
+              const index = match.index;
+              
+              if (index > lastIndex) {
+                parts.push(content.substring(lastIndex, index));
+              }
+              
+              parts.push(
+                <a
+                  key={`link-${idx}-${parts.length}`}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 animate-pulse inline-block mx-1"
+                  style={{
+                    textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
+                  }}
+                >
+                  🎥 Watch Video
+                </a>
+              );
+              
+              lastIndex = index + url.length;
+            }
+            
+            if (lastIndex < content.length) {
+              parts.push(content.substring(lastIndex));
+            }
+            
+            return parts.length > 0 ? <>{parts}</> : content;
+          };
+
+          return (
             <div
-              className={`max-w-[80%] rounded-lg p-3 shadow-md ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background border-2 border-border text-foreground"
-              }`}
+              key={idx}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {msg.content}
+              <div
+                className={`max-w-[80%] rounded-lg p-3 shadow-md ${
+                  msg.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background border-2 border-border text-foreground"
+                }`}
+              >
+                {renderMessageContent(msg.content)}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
