@@ -1,147 +1,162 @@
 import { useState } from "react";
-import bodyDiagram from "@/assets/body-diagram.jpg";
 
 interface BodyDiagramProps {
   onMuscleSelect: (muscle: string) => void;
   selectedMuscle: string | null;
 }
 
-export const BodyDiagram = ({ onMuscleSelect, selectedMuscle }: BodyDiagramProps) => {
+interface Muscle {
+  name: string;
+  title: string;
+  path: string;
+}
+
+export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
   const [hoveredMuscle, setHoveredMuscle] = useState<string | null>(null);
 
   const handleMuscleClick = (muscle: string) => {
     onMuscleSelect(muscle);
   };
 
-  // Define anatomically accurate muscle regions with curved SVG paths
-  const frontMuscles = [
-    { 
-      name: "chest", 
+  // Front view muscles with anatomically accurate SVG paths
+  const frontMuscles: Muscle[] = [
+    {
+      name: "chest",
       title: "Chest",
-      path: "M 145 125 Q 145 120 150 118 L 193 118 Q 198 120 198 125 L 198 175 Q 198 185 193 190 L 150 190 Q 145 185 145 175 Z"
+      path: "M280 160 Q270 165 265 175 L265 210 Q270 225 285 230 L315 230 Q330 225 335 210 L335 175 Q330 165 320 160 Z"
     },
-    { 
-      name: "abs", 
-      title: "Abs",
-      path: "M 152 198 Q 150 198 150 200 L 150 270 Q 150 278 152 280 L 191 280 Q 193 278 193 270 L 193 200 Q 193 198 191 198 Z"
-    },
-    { 
-      name: "shoulders", 
+    {
+      name: "shoulders",
       title: "Shoulders",
-      path: "M 100 115 Q 98 118 98 122 L 98 142 Q 100 148 105 150 L 125 155 Q 128 153 128 148 L 128 118 Q 126 115 122 115 Z M 221 115 Q 217 115 215 118 L 215 148 Q 215 153 218 155 L 238 150 Q 243 148 245 142 L 245 122 Q 245 118 243 115 Z"
+      path: "M240 150 Q235 155 235 165 L235 185 Q238 195 248 198 L260 195 Q265 188 265 180 L265 160 Q262 152 252 150 Z M340 150 Q348 152 351 160 L351 180 Q351 188 346 195 L334 198 Q324 195 321 185 L321 165 Q321 155 326 150 Z"
     },
-    { 
-      name: "biceps", 
+    {
+      name: "biceps",
       title: "Biceps",
-      path: "M 85 155 Q 82 158 82 163 L 82 205 Q 84 210 89 210 L 115 210 Q 118 208 118 203 L 118 160 Q 116 155 111 155 Z M 228 155 Q 225 155 223 160 L 223 203 Q 223 208 226 210 L 254 210 Q 259 210 261 205 L 261 163 Q 261 158 258 155 Z"
+      path: "M225 200 Q220 205 220 215 L220 250 Q223 258 230 260 L245 258 Q250 253 250 245 L250 210 Q248 202 240 200 Z M350 200 Q360 202 362 210 L362 245 Q362 253 357 258 L342 260 Q335 258 332 250 L332 215 Q332 205 337 200 Z"
     },
-    { 
-      name: "quadriceps", 
+    {
+      name: "abs",
+      title: "Abs",
+      path: "M275 240 Q270 245 270 255 L270 310 Q272 325 280 330 L320 330 Q328 325 330 310 L330 255 Q330 245 325 240 Z"
+    },
+    {
+      name: "quadriceps",
       title: "Quadriceps",
-      path: "M 130 288 Q 128 290 128 295 L 128 385 Q 130 390 135 392 L 208 392 Q 213 390 215 385 L 215 295 Q 215 290 213 288 Z"
+      path: "M265 345 Q260 350 260 360 L260 470 Q263 485 275 490 L325 490 Q337 485 340 470 L340 360 Q340 350 335 345 Z"
     },
-    { 
-      name: "calves", 
+    {
+      name: "calves",
       title: "Calves",
-      path: "M 135 415 Q 133 418 133 422 L 133 485 Q 135 490 138 492 L 205 492 Q 208 490 210 485 L 210 422 Q 210 418 208 415 Z"
-    },
+      path: "M270 505 Q265 510 265 520 L265 590 Q268 600 278 605 L322 605 Q332 600 335 590 L335 520 Q335 510 330 505 Z"
+    }
   ];
 
-  const backMuscles = [
-    { 
-      name: "back", 
-      title: "Back",
-      path: "M 500 125 Q 498 128 498 135 L 498 265 Q 500 275 505 278 L 574 278 Q 579 275 581 265 L 581 135 Q 581 128 579 125 Z"
+  // Back view muscles
+  const backMuscles: Muscle[] = [
+    {
+      name: "back",
+      title: "Upper Back",
+      path: "M680 160 Q670 165 665 175 L665 240 Q670 260 685 265 L715 265 Q730 260 735 240 L735 175 Q730 165 720 160 Z"
     },
-    { 
-      name: "shoulders", 
+    {
+      name: "shoulders",
       title: "Shoulders",
-      path: "M 460 115 Q 458 118 458 122 L 458 142 Q 460 148 465 150 L 485 155 Q 488 153 488 148 L 488 118 Q 486 115 482 115 Z M 597 115 Q 593 115 591 118 L 591 148 Q 591 153 594 155 L 614 150 Q 619 148 621 142 L 621 122 Q 621 118 619 115 Z"
+      path: "M640 150 Q635 155 635 165 L635 185 Q638 195 648 198 L660 195 Q665 188 665 180 L665 160 Q662 152 652 150 Z M740 150 Q748 152 751 160 L751 180 Q751 188 746 195 L734 198 Q724 195 721 185 L721 165 Q721 155 726 150 Z"
     },
-    { 
-      name: "arms", 
+    {
+      name: "arms",
       title: "Triceps",
-      path: "M 445 155 Q 442 158 442 163 L 442 205 Q 444 210 449 210 L 475 210 Q 478 208 478 203 L 478 160 Q 476 155 471 155 Z M 604 155 Q 601 155 599 160 L 599 203 Q 599 208 602 210 L 630 210 Q 635 210 637 205 L 637 163 Q 637 158 634 155 Z"
+      path: "M625 200 Q620 205 620 215 L620 250 Q623 258 630 260 L645 258 Q650 253 650 245 L650 210 Q648 202 640 200 Z M750 200 Q760 202 762 210 L762 245 Q762 253 757 258 L742 260 Q735 258 732 250 L732 215 Q732 205 737 200 Z"
     },
-    { 
-      name: "legs", 
+    {
+      name: "legs",
       title: "Glutes & Hamstrings",
-      path: "M 490 288 Q 488 290 488 295 L 488 385 Q 490 390 495 392 L 584 392 Q 589 390 591 385 L 591 295 Q 591 290 589 288 Z"
+      path: "M665 280 Q660 285 660 295 L660 470 Q663 485 675 490 L725 490 Q737 485 740 470 L740 295 Q740 285 735 280 Z"
     },
-    { 
-      name: "legs", 
+    {
+      name: "legs",
       title: "Calves",
-      path: "M 495 415 Q 493 418 493 422 L 493 485 Q 495 490 498 492 L 581 492 Q 584 490 586 485 L 586 422 Q 586 418 584 415 Z"
-    },
+      path: "M670 505 Q665 510 665 520 L665 590 Q668 600 678 605 L722 605 Q732 600 735 590 L735 520 Q735 510 730 505 Z"
+    }
   ];
 
   return (
-    <div className="flex flex-col items-center py-8 space-y-6">
-      <div className="relative w-full max-w-4xl mx-auto">
-        {/* Base Image */}
-        <img
-          src={bodyDiagram}
-          alt="Interactive Body Diagram"
-          className="w-full h-auto"
-        />
+    <div className="flex flex-col items-center py-8 px-4">
+      <div className="w-full max-w-5xl bg-[#f6fbff] rounded-2xl p-8 shadow-lg">
+        <h2 className="text-3xl font-bold text-center mb-8 text-foreground">
+          Select a Muscle Group
+        </h2>
         
-        {/* SVG Overlay for Interactive Regions */}
-        <svg
-          className="absolute top-0 left-0 w-full h-full pointer-events-none"
-          viewBox="0 0 739 619"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Front View Muscles */}
-          {frontMuscles.map((muscle, index) => (
-            <path
-              key={`front-${muscle.name}-${index}`}
-              d={muscle.path}
-              fill={hoveredMuscle === `${muscle.name}-${index}` ? "rgba(255, 91, 91, 0.6)" : "transparent"}
-              stroke="#2a2a2a"
-              strokeWidth="1"
-              className="pointer-events-auto cursor-pointer"
-              style={{
-                transition: "fill 0.3s ease",
-                filter: hoveredMuscle === `${muscle.name}-${index}` 
-                  ? "drop-shadow(0 0 8px rgba(255, 91, 91, 0.8))" 
-                  : "none"
-              }}
-              onClick={() => handleMuscleClick(muscle.name)}
-              onMouseEnter={() => setHoveredMuscle(`${muscle.name}-${index}`)}
-              onMouseLeave={() => setHoveredMuscle(null)}
-            />
-          ))}
+        <div className="flex flex-col lg:flex-row justify-center items-start gap-12 lg:gap-20">
+          {/* Front View */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Front</h3>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 600 800"
+              className="w-full max-w-[300px] h-auto"
+            >
+              {frontMuscles.map((muscle, index) => (
+                <path
+                  key={`front-${muscle.name}-${index}`}
+                  id={`front-${muscle.name}-${index}`}
+                  d={muscle.path}
+                  fill={hoveredMuscle === `front-${muscle.name}-${index}` ? "rgba(255, 91, 91, 0.6)" : "transparent"}
+                  stroke="#2a2a2a"
+                  strokeWidth="1"
+                  className="cursor-pointer"
+                  style={{
+                    transition: "fill 0.3s ease"
+                  }}
+                  onClick={() => handleMuscleClick(muscle.name)}
+                  onMouseEnter={() => setHoveredMuscle(`front-${muscle.name}-${index}`)}
+                  onMouseLeave={() => setHoveredMuscle(null)}
+                />
+              ))}
+            </svg>
+          </div>
 
-          {/* Back View Muscles */}
-          {backMuscles.map((muscle, index) => (
-            <path
-              key={`back-${muscle.name}-${index}`}
-              d={muscle.path}
-              fill={hoveredMuscle === `${muscle.name}-back-${index}` ? "rgba(255, 91, 91, 0.6)" : "transparent"}
-              stroke="#2a2a2a"
-              strokeWidth="1"
-              className="pointer-events-auto cursor-pointer"
-              style={{
-                transition: "fill 0.3s ease",
-                filter: hoveredMuscle === `${muscle.name}-back-${index}` 
-                  ? "drop-shadow(0 0 8px rgba(255, 91, 91, 0.8))" 
-                  : "none"
-              }}
-              onClick={() => handleMuscleClick(muscle.name)}
-              onMouseEnter={() => setHoveredMuscle(`${muscle.name}-back-${index}`)}
-              onMouseLeave={() => setHoveredMuscle(null)}
-            />
-          ))}
-        </svg>
-      </div>
-
-      {/* Hover Tooltip */}
-      {hoveredMuscle && (
-        <div className="animate-fade-in bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg text-base font-medium">
-          {frontMuscles.find((m, i) => `${m.name}-${i}` === hoveredMuscle)?.title || 
-           backMuscles.find((m, i) => `${m.name}-back-${i}` === hoveredMuscle)?.title}
+          {/* Back View */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Back</h3>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 600 800"
+              className="w-full max-w-[300px] h-auto"
+            >
+              {backMuscles.map((muscle, index) => (
+                <path
+                  key={`back-${muscle.name}-${index}`}
+                  id={`back-${muscle.name}-${index}`}
+                  d={muscle.path}
+                  fill={hoveredMuscle === `back-${muscle.name}-${index}` ? "rgba(255, 91, 91, 0.6)" : "transparent"}
+                  stroke="#2a2a2a"
+                  strokeWidth="1"
+                  className="cursor-pointer"
+                  style={{
+                    transition: "fill 0.3s ease"
+                  }}
+                  onClick={() => handleMuscleClick(muscle.name)}
+                  onMouseEnter={() => setHoveredMuscle(`back-${muscle.name}-${index}`)}
+                  onMouseLeave={() => setHoveredMuscle(null)}
+                />
+              ))}
+            </svg>
+          </div>
         </div>
-      )}
+
+        {/* Hover Label */}
+        {hoveredMuscle && (
+          <div className="mt-8 text-center animate-fade-in">
+            <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg text-lg font-medium">
+              {[...frontMuscles, ...backMuscles].find((m, i) => 
+                `front-${m.name}-${i}` === hoveredMuscle || `back-${m.name}-${i}` === hoveredMuscle
+              )?.title}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
