@@ -89,14 +89,14 @@ export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
           Select a Muscle Group
         </h2>
         
-        <div className="flex flex-col lg:flex-row justify-center items-start gap-12 lg:gap-20">
+        <div className="flex justify-center items-center">
           {/* Front View */}
           <div className="flex flex-col items-center relative">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Front</h3>
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Select a Muscle Group</h3>
             <div className="relative w-full max-w-[400px]">
               <img 
                 src={bodyDiagramFront} 
-                alt="Front body view" 
+                alt="Body diagram" 
                 className="w-full h-auto"
               />
               <svg
@@ -118,41 +118,6 @@ export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
                     }}
                     onClick={() => handleMuscleClick(muscle.name)}
                     onMouseEnter={() => setHoveredMuscle(`front-${muscle.name}-${index}`)}
-                    onMouseLeave={() => setHoveredMuscle(null)}
-                  />
-                ))}
-              </svg>
-            </div>
-          </div>
-
-          {/* Back View */}
-          <div className="flex flex-col items-center relative">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Back</h3>
-            <div className="relative w-full max-w-[400px]">
-              <img 
-                src={bodyDiagramFront} 
-                alt="Back body view" 
-                className="w-full h-auto opacity-50"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 420 680"
-                className="absolute top-0 left-0 w-full h-full"
-              >
-                {backMuscles.map((muscle, index) => (
-                  <path
-                    key={`back-${muscle.name}-${index}`}
-                    id={`back-${muscle.name}-${index}`}
-                    d={muscle.path}
-                    fill={hoveredMuscle === `back-${muscle.name}-${index}` ? "rgba(255, 91, 91, 0.6)" : "transparent"}
-                    stroke="transparent"
-                    strokeWidth="0"
-                    className="cursor-pointer"
-                    style={{
-                      transition: "fill 0.3s ease"
-                    }}
-                    onClick={() => handleMuscleClick(muscle.name)}
-                    onMouseEnter={() => setHoveredMuscle(`back-${muscle.name}-${index}`)}
                     onMouseLeave={() => setHoveredMuscle(null)}
                   />
                 ))}
