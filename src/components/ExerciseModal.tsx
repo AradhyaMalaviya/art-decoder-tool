@@ -19,10 +19,13 @@ export const ExerciseModal = ({ isOpen, onClose, muscleGroup }: ExerciseModalPro
     "shoulders": "Shoulders",
     "biceps-left": "Arms",
     "biceps-right": "Arms",
+    "biceps": "Arms",
     "quadriceps-left": "Legs",
     "quadriceps-right": "Legs",
+    "quadriceps": "Legs",
     "calves-left": "Legs",
     "calves-right": "Legs",
+    "calves": "Legs",
     "back": "Back",
     "arms": "Arms",
     "legs": "Legs"
