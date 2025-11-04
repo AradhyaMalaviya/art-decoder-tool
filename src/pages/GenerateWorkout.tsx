@@ -12,7 +12,7 @@ type FitnessLevel = 'Beginner' | 'Intermediate' | 'Advanced' | null;
 
 const muscleGroups = ['Chest', 'Back', 'Legs', 'Arms', 'Shoulders', 'Core'];
 
-const StartTraining = () => {
+const GenerateWorkout = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<'intro' | 'level' | 'bodyPart' | 'exercises'>('intro');
   const [selectedLevel, setSelectedLevel] = useState<FitnessLevel>(null);
@@ -54,7 +54,7 @@ const StartTraining = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              Start Your Training Journey!
+              Generate Your Custom Workout!
             </h1>
             
             <p className="text-xl text-muted-foreground">
@@ -289,4 +289,4 @@ const StartTraining = () => {
   );
 };
 
-export default StartTraining;
+export default GenerateWorkout;

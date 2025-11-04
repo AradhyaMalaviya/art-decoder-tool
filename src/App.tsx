@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Exercises from "./pages/Exercises";
-import StartTraining from "./pages/StartTraining";
+import GenerateWorkout from "./pages/GenerateWorkout";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Nutrition from "./pages/Nutrition";
@@ -40,7 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
-            <Route path="/start-training" element={<ProtectedRoute><StartTraining /></ProtectedRoute>} />
+            <Route path="/generate-workout" element={<ProtectedRoute><GenerateWorkout /></ProtectedRoute>} />
             <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
             <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />
             <Route path="/nutrition/roadmap" element={<ProtectedRoute><NutritionRoadmap /></ProtectedRoute>} />
