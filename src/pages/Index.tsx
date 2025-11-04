@@ -29,7 +29,7 @@ const Index = () => {
       <FitnessChat />
       
       {/* Interactive Body Diagram */}
-      <section className="py-16 px-6 bg-gradient-to-b from-background to-card/30">
+      <section className="py-16 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
             Interactive Muscle Encyclopedia
