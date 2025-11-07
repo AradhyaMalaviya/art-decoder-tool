@@ -1,5 +1,29 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { z } from 'zod';
+
+// Input validation schemas
+export const signUpSchema = z.object({
+  username: z.string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be less than 30 characters')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores and hyphens'),
+  phoneNumber: z.string()
+    .trim()
+    .regex(/^\+?[1-9]\d{9,14}$/, 'Invalid phone number format (e.g., +919876543210)')
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(15, 'Phone number must be less than 15 digits'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters')
+});
+
+export const signInSchema = z.object({
+  username: z.string().trim().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password is required')
+});
 
 interface User {
   id: string;
@@ -10,8 +34,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  signUp: (username: string, phoneNumber: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (username: string, phoneNumber: string) => Promise<{ success: boolean; error?: string }>;
+  session: Session | null;
+  signUp: (username: string, phoneNumber: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: (guestName: string) => void;
   signOut: () => void;
   loading: boolean;
@@ -21,93 +46,164 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    const storedUser = localStorage.getItem('fitBoxUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch profile data
+          setTimeout(async () => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('auth_user_id', session.user.id)
+              .single();
+
+            if (profile) {
+              setUser({
+                id: profile.id,
+                username: profile.username,
+                phoneNumber: profile.phone_number,
+                isGuest: false,
+              });
+            }
+          }, 0);
+        } else {
+          // Check for guest user
+          const storedUser = localStorage.getItem('fitBoxUser');
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.isGuest) {
+              setUser(parsedUser);
+            } else {
+              localStorage.removeItem('fitBoxUser');
+            }
+          } else {
+            setUser(null);
+          }
+        }
+        setLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        setTimeout(async () => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('auth_user_id', session.user.id)
+            .single();
+
+          if (profile) {
+            setUser({
+              id: profile.id,
+              username: profile.username,
+              phoneNumber: profile.phone_number,
+              isGuest: false,
+            });
+          }
+          setLoading(false);
+        }, 0);
+      } else {
+        const storedUser = localStorage.getItem('fitBoxUser');
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser.isGuest) {
+            setUser(parsedUser);
+          }
+        }
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (username: string, phoneNumber: string) => {
+  const signUp = async (username: string, phoneNumber: string, password: string) => {
     try {
-      // Check if username already exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username)
-        .maybeSingle();
-
-      if (existingUser) {
-        return { success: false, error: 'Username already taken' };
+      // Validate inputs
+      const validation = signUpSchema.safeParse({ username, phoneNumber, password });
+      if (!validation.success) {
+        return { success: false, error: validation.error.errors[0].message };
       }
 
-      // Check if phone number already exists
-      const { data: existingPhone } = await supabase
-        .from('profiles')
-        .select('phone_number')
-        .eq('phone_number', phoneNumber)
-        .maybeSingle();
+      const normalizedUsername = username.trim().toLowerCase();
+      const normalizedPhone = phoneNumber.trim();
 
-      if (existingPhone) {
-        return { success: false, error: 'Phone number already registered' };
+      // Create email from username for Supabase Auth
+      const email = `${normalizedUsername}@fitbox.app`;
+      const redirectUrl = `${window.location.origin}/`;
+
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            username: normalizedUsername,
+            phone_number: normalizedPhone
+          }
+        }
+      });
+
+      if (authError) {
+        if (authError.message.includes('already registered')) {
+          return { success: false, error: 'Username already taken' };
+        }
+        throw authError;
       }
 
-      // Create new profile
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert([{ username, phone_number: phoneNumber }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const newUser: User = {
-        id: data.id,
-        username: data.username,
-        phoneNumber: data.phone_number,
-        isGuest: false,
-      };
-
-      setUser(newUser);
-      localStorage.setItem('fitBoxUser', JSON.stringify(newUser));
+      if (!authData.user) {
+        return { success: false, error: 'Failed to create account' };
+      }
 
       return { success: true };
     } catch (error: any) {
+      console.error('Signup error:', error);
       return { success: false, error: error.message || 'Failed to sign up' };
     }
   };
 
-  const signIn = async (username: string, phoneNumber: string) => {
+  const signIn = async (username: string, password: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('username', username)
-        .eq('phone_number', phoneNumber)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (!data) {
-        return { success: false, error: 'Invalid username or phone number' };
+      // Validate inputs
+      const validation = signInSchema.safeParse({ username, password });
+      if (!validation.success) {
+        return { success: false, error: validation.error.errors[0].message };
       }
 
-      const existingUser: User = {
-        id: data.id,
-        username: data.username,
-        phoneNumber: data.phone_number,
-        isGuest: false,
-      };
+      const normalizedUsername = username.trim().toLowerCase();
+      const email = `${normalizedUsername}@fitbox.app`;
 
-      setUser(existingUser);
-      localStorage.setItem('fitBoxUser', JSON.stringify(existingUser));
+      // Sign in with Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          return { success: false, error: 'Invalid username or password' };
+        }
+        throw error;
+      }
+
+      if (!data.session) {
+        return { success: false, error: 'Failed to sign in' };
+      }
 
       return { success: true };
     } catch (error: any) {
+      console.error('Signin error:', error);
       return { success: false, error: error.message || 'Failed to sign in' };
     }
   };
@@ -124,13 +220,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('fitBoxUser', JSON.stringify(guestUser));
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
+    setSession(null);
     localStorage.removeItem('fitBoxUser');
   };
 
   return (
-    <AuthContext.Provider value={{ user, signUp, signIn, continueAsGuest, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, continueAsGuest, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );

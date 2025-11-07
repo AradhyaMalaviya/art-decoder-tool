@@ -9,8 +9,8 @@ export const Header = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
     toast({
       title: 'Signed out',
       description: 'Come back soon!',

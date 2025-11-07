@@ -14,6 +14,7 @@ const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('welcome');
   const [username, setUsername] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
   const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -23,7 +24,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !phoneNumber.trim()) {
+    if (!username.trim() || !phoneNumber.trim() || !password.trim()) {
       toast({
         title: 'Error',
         description: 'Please fill in all fields',
@@ -33,15 +34,16 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const result = await signUp(username.trim(), phoneNumber.trim());
+    const result = await signUp(username.trim(), phoneNumber.trim(), password);
     setLoading(false);
 
     if (result.success) {
       toast({
-        title: 'Welcome! 🎉',
-        description: `Account created successfully for ${username}`,
+        title: 'Success!',
+        description: 'Account created successfully. You can now sign in.',
       });
-      navigate('/');
+      setMode('signin');
+      setPassword('');
     } else {
       toast({
         title: 'Error',
@@ -53,7 +55,7 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !phoneNumber.trim()) {
+    if (!username.trim() || !password.trim()) {
       toast({
         title: 'Error',
         description: 'Please fill in all fields',
@@ -63,13 +65,13 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const result = await signIn(username.trim(), phoneNumber.trim());
+    const result = await signIn(username.trim(), password);
     setLoading(false);
 
     if (result.success) {
       toast({
-        title: 'Welcome back! 👋',
-        description: `Signed in as ${username}`,
+        title: 'Welcome back!',
+        description: `Signed in successfully`,
       });
       navigate('/');
     } else {
@@ -154,7 +156,7 @@ const Auth = () => {
                 <Input
                   id="signup-username"
                   type="text"
-                  placeholder="Choose a username"
+                  placeholder="Choose a username (3-30 characters)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={loading}
@@ -165,9 +167,20 @@ const Auth = () => {
                 <Input
                   id="signup-phone"
                   type="tel"
-                  placeholder="Enter your phone number"
+                  placeholder="e.g., +919876543210"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-password">Password</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  placeholder="Create a password (min 8 characters)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                 />
               </div>
@@ -202,13 +215,13 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signin-phone">Phone Number</Label>
+                <Label htmlFor="signin-password">Password</Label>
                 <Input
-                  id="signin-phone"
-                  type="tel"
-                  placeholder="Enter your phone number"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  id="signin-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
                 />
               </div>

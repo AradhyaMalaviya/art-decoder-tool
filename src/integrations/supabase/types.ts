@@ -122,18 +122,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          auth_user_id: string | null
           created_at: string
           id: string
           phone_number: string
           username: string
         }
         Insert: {
+          auth_user_id?: string | null
           created_at?: string
-          id?: string
+          id: string
           phone_number: string
           username: string
         }
         Update: {
+          auth_user_id?: string | null
           created_at?: string
           id?: string
           phone_number?: string

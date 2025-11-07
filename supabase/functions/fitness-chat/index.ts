@@ -57,10 +57,18 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
+    // Log detailed error server-side for debugging
     console.error("chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    
+    // Return generic error message to client
+    return new Response(
+      JSON.stringify({ 
+        error: "An error occurred processing your request. Please try again.",
+        error_code: "CHAT_ERROR"
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
