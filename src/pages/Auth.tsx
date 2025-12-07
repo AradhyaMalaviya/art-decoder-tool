@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Dumbbell } from 'lucide-react';
 
-type AuthMode = 'welcome' | 'signup' | 'signin' | 'guest';
+type AuthMode = 'welcome' | 'signup' | 'signin' | 'guest' | 'forgot' | 'otp';
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('welcome');
@@ -16,6 +16,9 @@ const Auth = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [guestName, setGuestName] = useState('');
+  const [recoveryPhone, setRecoveryPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { signUp, signIn, continueAsGuest } = useAuth();
@@ -114,12 +117,16 @@ const Auth = () => {
             {mode === 'signup' && 'Create Account'}
             {mode === 'signin' && 'Sign In'}
             {mode === 'guest' && 'Continue as Guest'}
+            {mode === 'forgot' && 'Reset Password'}
+            {mode === 'otp' && 'Verify OTP'}
           </CardTitle>
           <CardDescription className="text-base">
             {mode === 'welcome' && 'Your fitness journey starts here!'}
             {mode === 'signup' && 'Join us and track your progress'}
             {mode === 'signin' && 'Welcome back! Enter your credentials'}
             {mode === 'guest' && 'Choose a temporary name'}
+            {mode === 'forgot' && 'Enter your registered phone number'}
+            {mode === 'otp' && 'Enter the code sent to your phone'}
           </CardDescription>
         </CardHeader>
 
@@ -228,12 +235,7 @@ const Auth = () => {
               <button
                 type="button"
                 className="text-sm text-primary hover:underline"
-                onClick={() => {
-                  toast({
-                    title: 'Password Recovery',
-                    description: 'Please contact support with your registered phone number to reset your password.',
-                  });
-                }}
+                onClick={() => setMode('forgot')}
               >
                 Forgot password?
               </button>
@@ -278,6 +280,120 @@ const Auth = () => {
                   variant="ghost" 
                   className="w-full" 
                   onClick={() => setMode('welcome')}
+                >
+                  Back
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {mode === 'forgot' && (
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!recoveryPhone.trim()) {
+                  toast({
+                    title: 'Error',
+                    description: 'Please enter your phone number',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+                toast({
+                  title: 'Phone OTP Not Configured',
+                  description: 'SMS provider (Twilio) needs to be configured in Supabase to send OTP codes. For now, please contact support.',
+                  variant: 'destructive',
+                });
+                // When configured, this would call: supabase.auth.signInWithOtp({ phone: recoveryPhone })
+                // setMode('otp');
+              }} 
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="recovery-phone">Phone Number</Label>
+                <Input
+                  id="recovery-phone"
+                  type="tel"
+                  placeholder="Enter your registered phone number"
+                  value={recoveryPhone}
+                  onChange={(e) => setRecoveryPhone(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                We'll send a verification code to this number
+              </p>
+              <div className="space-y-2 pt-2">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Sending...' : 'Send OTP'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="w-full" 
+                  onClick={() => setMode('signin')}
+                  disabled={loading}
+                >
+                  Back to Sign In
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {mode === 'otp' && (
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!otp.trim() || !newPassword.trim()) {
+                  toast({
+                    title: 'Error',
+                    description: 'Please fill in all fields',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+                toast({
+                  title: 'Phone OTP Not Configured',
+                  description: 'SMS verification needs Twilio to be configured in Supabase.',
+                  variant: 'destructive',
+                });
+                // When configured, this would verify OTP and update password
+              }} 
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="otp-code">Verification Code</Label>
+                <Input
+                  id="otp-code"
+                  type="text"
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  disabled={loading}
+                  maxLength={6}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-2 pt-2">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Verifying...' : 'Reset Password'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="w-full" 
+                  onClick={() => setMode('forgot')}
+                  disabled={loading}
                 >
                   Back
                 </Button>
