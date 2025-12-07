@@ -225,6 +225,18 @@ const Auth = () => {
                   disabled={loading}
                 />
               </div>
+              <button
+                type="button"
+                className="text-sm text-primary hover:underline"
+                onClick={() => {
+                  toast({
+                    title: 'Password Recovery',
+                    description: 'Please contact support with your registered phone number to reset your password.',
+                  });
+                }}
+              >
+                Forgot password?
+              </button>
               <div className="space-y-2 pt-2">
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Signing In...' : 'Sign In'}
