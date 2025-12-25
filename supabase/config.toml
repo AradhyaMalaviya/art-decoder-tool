@@ -2,3 +2,6 @@ project_id = "xmbardirxjhdamaeiuhx"
 
 [functions.fitness-chat]
 verify_jwt = true
+
+[functions.get-trainer-contact]
+verify_jwt = true

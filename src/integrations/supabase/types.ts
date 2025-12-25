@@ -21,9 +21,7 @@ export type Database = {
           notes: string | null
           status: string | null
           subscription_id: string | null
-          trainer_email: string | null
           trainer_name: string | null
-          trainer_phone: string | null
           user_id: string
         }
         Insert: {
@@ -32,9 +30,7 @@ export type Database = {
           notes?: string | null
           status?: string | null
           subscription_id?: string | null
-          trainer_email?: string | null
           trainer_name?: string | null
-          trainer_phone?: string | null
           user_id: string
         }
         Update: {
@@ -43,9 +39,7 @@ export type Database = {
           notes?: string | null
           status?: string | null
           subscription_id?: string | null
-          trainer_email?: string | null
           trainer_name?: string | null
-          trainer_phone?: string | null
           user_id?: string
         }
         Relationships: [
@@ -57,6 +51,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       payment_transactions: {
         Row: {
@@ -217,6 +244,38 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trainer_sensitive_data: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          trainer_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          trainer_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          trainer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainer_sensitive_data_trainer_id_fkey"
+            columns: ["trainer_id"]
+            isOneToOne: true
+            referencedRelation: "assigned_trainers"
             referencedColumns: ["id"]
           },
         ]
