@@ -280,6 +280,109 @@ export type Database = {
           },
         ]
       }
+      workout_logs: {
+        Row: {
+          created_at: string
+          exercise_id: string | null
+          exercise_name: string
+          id: string
+          order_index: number
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id?: string | null
+          exercise_name: string
+          id?: string
+          order_index?: number
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string | null
+          exercise_name?: string
+          id?: string
+          order_index?: number
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          name: string
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          name: string
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          name?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_sets: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          log_id: string
+          reps: number
+          set_number: number
+          weight: number
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          log_id: string
+          reps?: number
+          set_number: number
+          weight?: number
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          log_id?: string
+          reps?: number
+          set_number?: number
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sets_log_id_fkey"
+            columns: ["log_id"]
+            isOneToOne: false
+            referencedRelation: "workout_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workouts: {
         Row: {
           created_at: string
