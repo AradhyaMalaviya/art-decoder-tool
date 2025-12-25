@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Nutrition from "./pages/Nutrition";
 import NutritionQuestionnaire from "./pages/NutritionQuestionnaire";
 import NutritionRoadmap from "./pages/NutritionRoadmap";
+import ActiveWorkout from "./pages/ActiveWorkout";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
             <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />
             <Route path="/nutrition/roadmap" element={<ProtectedRoute><NutritionRoadmap /></ProtectedRoute>} />
+            <Route path="/workout/active" element={<ProtectedRoute><ActiveWorkout /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
