@@ -154,7 +154,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Core',
     difficulty: 'Beginner',
     duration: '3 sets x 30-60 seconds',
-    equipment: 'Bodyweight'
+    equipment: 'Bodyweight',
+    video: '/src/assets/plank-video.mp4',
+    description: 'A fundamental core exercise that builds stability and endurance'
   },
   {
     id: '18',
@@ -162,7 +164,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Core',
     difficulty: 'Beginner',
     duration: '3 sets x 10 each side',
-    equipment: 'Bodyweight'
+    equipment: 'Bodyweight',
+    video: '/src/assets/dead-bug-video.mp4',
+    description: 'An excellent exercise for core stability and coordination'
   },
 
   // ========== INTERMEDIATE EXERCISES ==========
