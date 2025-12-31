@@ -144,7 +144,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Shoulders',
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
-    equipment: 'Dumbbells'
+    equipment: 'Dumbbells',
+    video: '/src/assets/lateral-raises-video.mp4',
+    description: 'An isolation exercise that targets the lateral deltoids to build broader shoulders'
   },
 
   // Beginner - Core
@@ -474,7 +476,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Shoulders',
     difficulty: 'Intermediate',
     duration: '4 sets x 8-12 reps',
-    equipment: 'Dumbbells'
+    equipment: 'Dumbbells',
+    video: '/src/assets/shoulder-press-video.mp4',
+    description: 'A compound pressing movement that builds overall shoulder strength and mass'
   },
   {
     id: '15',
@@ -482,7 +486,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Shoulders',
     difficulty: 'Intermediate',
     duration: '3 sets x 8-12 reps',
-    equipment: 'Bodyweight'
+    equipment: 'Bodyweight',
+    video: '/src/assets/pike-pushups-video.mp4',
+    description: 'A bodyweight exercise that targets the shoulders by mimicking an overhead press movement'
   },
 
   // Intermediate - Core
