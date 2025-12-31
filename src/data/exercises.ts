@@ -492,7 +492,9 @@ export const exercises: Exercise[] = [
     muscleGroup: 'Core',
     difficulty: 'Intermediate',
     duration: '3 sets x 20 reps',
-    equipment: 'Medicine Ball'
+    equipment: 'Medicine Ball',
+    video: '/src/assets/russian-twists-video.mp4',
+    description: 'A rotational core exercise that targets the obliques and improves rotational strength'
   },
 
   // ========== ADVANCED EXERCISES ==========
