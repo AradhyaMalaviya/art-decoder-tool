@@ -1,61 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { HeroSection } from "@/components/HeroSection";
+import { MuscleMapContainer } from "@/components/muscle-map";
 import { FitnessChat } from "@/components/FitnessChat";
-import { BodyDiagram } from "@/components/BodyDiagram";
-import { ExerciseModal } from "@/components/ExerciseModal";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleMuscleSelect = (muscle: string) => {
-    setSelectedMuscle(muscle);
-    if (muscle) {
-      setIsModalOpen(true);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      {/* Hero Section */}
-      <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      
+      {/* Interactive Muscle Map - Main Feature */}
+      <MuscleMapContainer />
       
       {/* AI Fitness Chat */}
       <FitnessChat />
       
-      {/* Interactive Body Diagram */}
-      <section className="py-16 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground">
-            Interactive Muscle Encyclopedia
-          </h2>
-          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Click on any muscle group to explore targeted exercises with video demonstrations, difficulty levels, and equipment requirements
-          </p>
-          <BodyDiagram 
-            onMuscleSelect={handleMuscleSelect} 
-            selectedMuscle={selectedMuscle}
-          />
-        </div>
-      </section>
-
-      {/* Exercise Modal */}
-      <ExerciseModal 
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedMuscle(null);
-        }}
-        muscleGroup={selectedMuscle}
-      />
-      
       {/* Feature Cards */}
-      <section className="py-12 px-6">
+      <section className="py-12 px-6 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Start Workout Card */}
