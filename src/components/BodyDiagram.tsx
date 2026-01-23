@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import bodyFront from "@/assets/body-front.jpg";
 import bodyBack from "@/assets/body-back.png";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { getMuscleRoute, hasExercises, getDisplayNameFromDiagramId } from "@/lib/muscleMapping";
 
 interface BodyDiagramProps {
-  onMuscleSelect: (muscle: string) => void;
-  selectedMuscle: string | null;
+  onMuscleSelect?: (muscle: string) => void;
+  selectedMuscle?: string | null;
 }
 
 interface MuscleRegion {
@@ -16,6 +18,7 @@ interface MuscleRegion {
 }
 
 export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
+  const navigate = useNavigate();
   const [hoveredMuscle, setHoveredMuscle] = useState<string | null>(null);
   const [view, setView] = useState<"front" | "back">("front");
 
@@ -91,7 +94,15 @@ export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
   const currentImage = view === "front" ? bodyFront : bodyBack;
 
   const handleMuscleClick = (muscleId: string) => {
-    onMuscleSelect(muscleId);
+    // Check if muscle has exercises before navigating
+    if (hasExercises(muscleId)) {
+      const route = getMuscleRoute(muscleId);
+      navigate(route);
+    }
+    // Also call the callback if provided (for backward compatibility)
+    if (onMuscleSelect) {
+      onMuscleSelect(muscleId);
+    }
   };
 
   return (
@@ -139,34 +150,48 @@ export const BodyDiagram = ({ onMuscleSelect }: BodyDiagramProps) => {
                 viewBox="0 0 400 550"
                 className="absolute top-0 left-0 w-full h-full"
               >
-                {currentMuscles.map((muscle) => (
-                  <Tooltip key={muscle.id}>
-                    <TooltipTrigger asChild>
-                      <path
-                        d={muscle.path}
-                        fill={hoveredMuscle === muscle.id ? muscle.color : "transparent"}
-                        stroke={hoveredMuscle === muscle.id ? "hsl(var(--primary))" : "transparent"}
-                        strokeWidth="2"
-                        className="cursor-pointer transition-all duration-300"
-                        onClick={() => handleMuscleClick(muscle.id)}
-                        onMouseEnter={() => setHoveredMuscle(muscle.id)}
-                        onMouseLeave={() => setHoveredMuscle(null)}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-primary text-primary-foreground">
-                      <p className="font-medium">{muscle.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {currentMuscles.map((muscle) => {
+                  const hasExercisesForMuscle = hasExercises(muscle.id);
+                  const isHovered = hoveredMuscle === muscle.id;
+                  
+                  return (
+                    <Tooltip key={muscle.id}>
+                      <TooltipTrigger asChild>
+                        <path
+                          d={muscle.path}
+                          fill={isHovered ? muscle.color : "transparent"}
+                          stroke={isHovered ? "hsl(var(--primary))" : "transparent"}
+                          strokeWidth={isHovered ? "3" : "2"}
+                          className={`transition-all duration-300 ${
+                            hasExercisesForMuscle 
+                              ? "cursor-pointer hover:opacity-80" 
+                              : "cursor-not-allowed opacity-50"
+                          }`}
+                          onClick={() => hasExercisesForMuscle && handleMuscleClick(muscle.id)}
+                          onMouseEnter={() => hasExercisesForMuscle && setHoveredMuscle(muscle.id)}
+                          onMouseLeave={() => setHoveredMuscle(null)}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="bg-primary text-primary-foreground">
+                        <p className="font-medium">
+                          {muscle.name}
+                          {!hasExercisesForMuscle && (
+                            <span className="text-xs opacity-75 ml-2">(No exercises yet)</span>
+                          )}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })}
               </svg>
             </div>
           </div>
 
           {/* Hover Label */}
-          {hoveredMuscle && (
+          {hoveredMuscle && hasExercises(hoveredMuscle) && (
             <div className="mt-8 text-center animate-fade-in">
               <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg text-lg font-medium">
-                Click to explore {currentMuscles.find((m) => m.id === hoveredMuscle)?.name} exercises
+                Click to explore {getDisplayNameFromDiagramId(hoveredMuscle)} exercises
               </div>
             </div>
           )}

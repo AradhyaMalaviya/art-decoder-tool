@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { MuscleMapContainer } from "@/components/muscle-map";
@@ -10,8 +9,31 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Interactive Muscle Map - Main Feature */}
-      <MuscleMapContainer />
+      {/* Interactive Muscle Map - Main Feature + Onboarding CTA */}
+      <section className="pb-4 pt-2 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
+          <div className="flex-1">
+            <MuscleMapContainer />
+          </div>
+          <div className="w-full lg:w-80">
+            <div className="bg-card/60 border border-primary/30 rounded-2xl p-5 shadow-sm">
+              <h2 className="text-lg font-semibold mb-1">Dial in your plan</h2>
+              <p className="text-xs text-muted-foreground mb-3">
+                4 quick steps to capture your ideal physique, diet, meals, and training time.
+              </p>
+              <Link
+                to="/onboarding"
+                className="inline-flex w-full items-center justify-center rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Start onboarding
+              </Link>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Takes ~2 minutes. Helps us generate smarter diet and workout suggestions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
       
       {/* AI Fitness Chat */}
       <FitnessChat />

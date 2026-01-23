@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MuscleMapSVG } from "./MuscleMapSVG";
 import { EquipmentFilter } from "./EquipmentFilter";
 import { ExerciseResults } from "./ExerciseResults";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getMuscleRoute, hasExercises } from "@/lib/muscleMapping";
 
 export const MuscleMapContainer = () => {
+  const navigate = useNavigate();
   const [view, setView] = useState<"front" | "back">("front");
   const [hoveredMuscle, setHoveredMuscle] = useState<string | null>(null);
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
@@ -14,7 +17,16 @@ export const MuscleMapContainer = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleMuscleClick = (muscleId: string, muscleGroup: string) => {
-    // Toggle selection
+    // Check if muscle has exercises
+    if (!hasExercises(muscleId)) {
+      return; // Don't do anything if no exercises available
+    }
+    
+    // Navigate to exercise page
+    const route = getMuscleRoute(muscleId);
+    navigate(route);
+    
+    // Also toggle selection for inline view (optional - can be removed if only navigation is desired)
     if (selectedMuscle === muscleGroup) {
       setSelectedMuscle(null);
     } else {

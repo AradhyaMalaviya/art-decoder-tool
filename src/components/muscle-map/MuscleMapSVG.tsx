@@ -1,4 +1,5 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { hasExercises } from "@/lib/muscleMapping";
 
 type MuscleGroup = 'traps' | 'shoulders' | 'chest' | 'biceps' | 'forearms' | 'abs' | 'obliques' | 'quads' | 'calves' | 'lats' | 'triceps' | 'lower_back' | 'glutes' | 'hamstrings';
 
@@ -41,6 +42,11 @@ export const MuscleMapSVG = ({
   const getPathClass = (muscle: MuscleGroup) => {
     const selected = isSelected(muscle);
     const hovered = isHovered(muscle);
+    const hasExercisesForMuscle = hasExercises(muscle);
+    
+    if (!hasExercisesForMuscle) {
+      return 'cursor-not-allowed transition-colors duration-200 ease-in-out fill-slate-100 opacity-50 stroke-slate-300';
+    }
     
     if (selected) {
       return 'cursor-pointer transition-colors duration-200 ease-in-out fill-pink-400 stroke-pink-500';
@@ -52,37 +58,56 @@ export const MuscleMapSVG = ({
   };
 
   const handleClick = (muscle: MuscleGroup) => {
-    onMuscleClick(muscle, muscleGroupLabels[muscle]);
+    if (hasExercises(muscle)) {
+      onMuscleClick(muscle, muscleGroupLabels[muscle]);
+    }
   };
 
   const handleMouseEnter = (muscle: MuscleGroup) => {
-    onMuscleHover(muscle);
+    if (hasExercises(muscle)) {
+      onMuscleHover(muscle);
+    }
   };
 
   const handleMouseLeave = () => {
     onMuscleHover(null);
   };
 
-  const renderMuscle = (muscle: MuscleGroup, pathD: string) => (
-    <Tooltip key={`${muscle}-${pathD.substring(0, 20)}`}>
-      <TooltipTrigger asChild>
-        <path 
-          d={pathD}
-          className={getPathClass(muscle)} 
-          onClick={() => handleClick(muscle)} 
-          onMouseEnter={() => handleMouseEnter(muscle)}
-          onMouseLeave={handleMouseLeave}
-          strokeWidth="1.5"
-        />
-      </TooltipTrigger>
-      <TooltipContent 
-        side="top" 
-        className="bg-card text-card-foreground border border-border shadow-lg"
-      >
-        <p className="font-medium text-sm">{muscleGroupLabels[muscle]}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
+  const renderMuscle = (muscle: MuscleGroup, pathD: string) => {
+    const hasExercisesForMuscle = hasExercises(muscle);
+    const muscleIsHovered = isHovered(muscle);
+    
+    return (
+      <Tooltip key={`${muscle}-${pathD.substring(0, 20)}`}>
+        <TooltipTrigger asChild>
+          <path 
+            d={pathD}
+            className={getPathClass(muscle)} 
+            onClick={() => handleClick(muscle)} 
+            onMouseEnter={() => handleMouseEnter(muscle)}
+            onMouseLeave={handleMouseLeave}
+            strokeWidth={muscleIsHovered && hasExercisesForMuscle ? "2.5" : "1.5"}
+            style={{
+              filter: muscleIsHovered && hasExercisesForMuscle 
+                ? "drop-shadow(0 0 8px rgba(236, 72, 153, 0.5))" 
+                : "none",
+            }}
+          />
+        </TooltipTrigger>
+        <TooltipContent 
+          side="top" 
+          className="bg-card text-card-foreground border border-border shadow-lg"
+        >
+          <p className="font-medium text-sm">
+            {muscleGroupLabels[muscle]}
+            {!hasExercisesForMuscle && (
+              <span className="text-xs opacity-75 ml-2">(No exercises yet)</span>
+            )}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
 
   if (view === 'front') {
     return (

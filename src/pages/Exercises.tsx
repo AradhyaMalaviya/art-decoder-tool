@@ -1,13 +1,27 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { MuscleGroupFilter } from "@/components/MuscleGroupFilter";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { exercises } from "@/data/exercises";
+import { getExerciseGroupFromDiagramId, getDisplayNameFromDiagramId } from "@/lib/muscleMapping";
 
 const Exercises = () => {
+  const { muscleId } = useParams<{ muscleId?: string }>();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Update selected muscle group when route parameter changes
+  useEffect(() => {
+    if (muscleId) {
+      const exerciseGroup = getExerciseGroupFromDiagramId(muscleId);
+      if (exerciseGroup) {
+        setSelectedMuscleGroup(exerciseGroup);
+      }
+    } else {
+      setSelectedMuscleGroup("All");
+    }
+  }, [muscleId]);
 
   const filteredExercises = useMemo(() => {
     return exercises.filter(exercise => {
@@ -36,9 +50,17 @@ const Exercises = () => {
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Exercise Directory
+            {muscleId && (
+              <span className="text-2xl md:text-3xl text-primary ml-3">
+                - {getDisplayNameFromDiagramId(muscleId)}
+              </span>
+            )}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Browse our comprehensive collection of exercises organized by muscle groups
+            {muscleId 
+              ? `Exercises targeting ${getDisplayNameFromDiagramId(muscleId).toLowerCase()}`
+              : "Browse our comprehensive collection of exercises organized by muscle groups"
+            }
           </p>
           
           {/* Search Bar */}

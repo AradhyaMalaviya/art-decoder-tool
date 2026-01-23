@@ -13,6 +13,7 @@ import Nutrition from "./pages/Nutrition";
 import NutritionQuestionnaire from "./pages/NutritionQuestionnaire";
 import NutritionRoadmap from "./pages/NutritionRoadmap";
 import ActiveWorkout from "./pages/ActiveWorkout";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,9 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
+            <Route path="/exercises/:muscleId" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
             <Route path="/generate-workout" element={<ProtectedRoute><GenerateWorkout /></ProtectedRoute>} />
             <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
             <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />

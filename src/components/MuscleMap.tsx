@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getMuscleRoute, hasExercises, getDisplayNameFromDiagramId } from "@/lib/muscleMapping";
 
 interface MuscleRegion {
   id: string;
@@ -53,7 +54,10 @@ export const MuscleMap = () => {
   ];
 
   const handleMuscleClick = (muscleId: string) => {
-    navigate(`/exercises/${muscleId}`);
+    if (hasExercises(muscleId)) {
+      const route = getMuscleRoute(muscleId);
+      navigate(route);
+    }
   };
 
   return (
@@ -91,38 +95,54 @@ export const MuscleMap = () => {
               </g>
 
               {/* Interactive muscle regions */}
-              {muscleRegions.map((muscle) => (
-                <Tooltip key={muscle.id}>
-                  <TooltipTrigger asChild>
-                    <path
-                      d={muscle.path}
-                      fill={hoveredMuscle === muscle.id ? muscle.color : "transparent"}
-                      stroke={hoveredMuscle === muscle.id ? "hsl(var(--primary))" : "transparent"}
-                      strokeWidth="2"
-                      className="cursor-pointer transition-all duration-300 hover:drop-shadow-lg"
-                      onClick={() => handleMuscleClick(muscle.id)}
-                      onMouseEnter={() => setHoveredMuscle(muscle.id)}
-                      onMouseLeave={() => setHoveredMuscle(null)}
-                      style={{
-                        filter: hoveredMuscle === muscle.id ? "drop-shadow(0 0 8px rgba(255,255,255,0.3))" : "none",
-                      }}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    side="top" 
-                    className="bg-primary text-primary-foreground font-['Inter','Poppins',sans-serif]"
-                  >
-                    <p className="font-medium">{muscle.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+              {muscleRegions.map((muscle) => {
+                const hasExercisesForMuscle = hasExercises(muscle.id);
+                const isHovered = hoveredMuscle === muscle.id;
+                
+                return (
+                  <Tooltip key={muscle.id}>
+                    <TooltipTrigger asChild>
+                      <path
+                        d={muscle.path}
+                        fill={isHovered ? muscle.color : "transparent"}
+                        stroke={isHovered ? "hsl(var(--primary))" : "transparent"}
+                        strokeWidth={isHovered ? "3" : "2"}
+                        className={`transition-all duration-300 ${
+                          hasExercisesForMuscle 
+                            ? "cursor-pointer hover:opacity-80" 
+                            : "cursor-not-allowed opacity-50"
+                        }`}
+                        onClick={() => hasExercisesForMuscle && handleMuscleClick(muscle.id)}
+                        onMouseEnter={() => hasExercisesForMuscle && setHoveredMuscle(muscle.id)}
+                        onMouseLeave={() => setHoveredMuscle(null)}
+                        style={{
+                          filter: isHovered && hasExercisesForMuscle 
+                            ? "drop-shadow(0 0 8px rgba(255,255,255,0.3))" 
+                            : "none",
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="top" 
+                      className="bg-primary text-primary-foreground font-['Inter','Poppins',sans-serif]"
+                    >
+                      <p className="font-medium">
+                        {muscle.name}
+                        {!hasExercisesForMuscle && (
+                          <span className="text-xs opacity-75 ml-2">(No exercises yet)</span>
+                        )}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
             </svg>
           </div>
 
-          {hoveredMuscle && (
+          {hoveredMuscle && hasExercises(hoveredMuscle) && (
             <div className="mt-8 text-center animate-fade-in">
-              <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg text-lg font-medium font-['Inter','Poppips',sans-serif]">
-                Click to explore {muscleRegions.find((m) => m.id === hoveredMuscle)?.name} exercises
+              <div className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-lg text-lg font-medium font-['Inter','Poppins',sans-serif]">
+                Click to explore {getDisplayNameFromDiagramId(hoveredMuscle)} exercises
               </div>
             </div>
           )}
