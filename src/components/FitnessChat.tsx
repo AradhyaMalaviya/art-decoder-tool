@@ -3,9 +3,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Send, X } from "lucide-react";
+import { Send, X, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { exercises } from "@/data/exercises";
 
 type Message = { role: "user" | "assistant"; content: string };
+
+// Create a summary of available exercises for the AI
+const getExerciseSummary = () => {
+  const muscleGroups = [...new Set(exercises.map(e => e.muscleGroup))];
+  const summary = muscleGroups.map(group => {
+    const groupExercises = exercises.filter(e => e.muscleGroup === group);
+    const byDifficulty = {
+      Beginner: groupExercises.filter(e => e.difficulty === 'Beginner').map(e => e.name),
+      Intermediate: groupExercises.filter(e => e.difficulty === 'Intermediate').map(e => e.name),
+      Advanced: groupExercises.filter(e => e.difficulty === 'Advanced').map(e => e.name),
+    };
+    return `${group}: Beginner[${byDifficulty.Beginner.join(', ')}], Intermediate[${byDifficulty.Intermediate.join(', ')}], Advanced[${byDifficulty.Advanced.join(', ')}]`;
+  }).join('\n');
+  return summary;
+};
 
 export const FitnessChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,12 +65,30 @@ export const FitnessChat = () => {
     };
 
     try {
+      // Get the session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Build headers with proper authentication
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      };
+      
+      // Add Authorization header if user is logged in
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      } else {
+        // Use anon key for guests
+        headers["Authorization"] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        headers,
+        body: JSON.stringify({ 
+          messages: [...messages, userMsg],
+          exerciseData: getExerciseSummary()
+        }),
       });
 
       if (resp.status === 429 || resp.status === 402) {
@@ -94,7 +129,8 @@ export const FitnessChat = () => {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) upsertAssistant(content);
-          } catch {
+          } catch (parseError) {
+            console.warn("Failed to parse streaming chunk:", parseError);
             textBuffer = line + "\n" + textBuffer;
             break;
           }
@@ -113,23 +149,104 @@ export const FitnessChat = () => {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) upsertAssistant(content);
-          } catch {}
+          } catch (parseError) {
+            console.warn("Failed to parse remaining chunk:", parseError);
+          }
         }
       }
 
       setIsLoading(false);
     } catch (e) {
-      console.error(e);
+      console.error("Chat error:", e);
       toast({ title: "Error", description: "Failed to send message", variant: "destructive" });
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  // Render message content with proper link handling
+  const renderMessageContent = (content: string, msgIdx: number) => {
+    // Reset regex state by creating new instances
+    const markdownRegex = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g;
+    const urlRegex = /(https?:\/\/[^\s<>)"']+)/g;
+    
+    const parts: (string | JSX.Element)[] = [];
+    let lastIndex = 0;
+
+    // First check for markdown-style links
+    const mdMatches = Array.from(content.matchAll(markdownRegex));
+    if (mdMatches.length > 0) {
+      mdMatches.forEach((mdMatch, i) => {
+        const [fullMatch, linkText, url] = mdMatch;
+        const index = mdMatch.index!;
+        
+        if (index > lastIndex) {
+          parts.push(content.substring(lastIndex, index));
+        }
+        
+        parts.push(
+          <a
+            key={`link-${msgIdx}-${i}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 inline-block mx-1"
+          >
+            🔗 {linkText}
+          </a>
+        );
+        
+        lastIndex = index + fullMatch.length;
+      });
+      
+      if (lastIndex < content.length) {
+        parts.push(content.substring(lastIndex));
+      }
+      
+      return <>{parts}</>;
+    }
+
+    // Fallback to plain URL detection - use matchAll to avoid lastIndex issues
+    const urlMatches = Array.from(content.matchAll(urlRegex));
+    if (urlMatches.length > 0) {
+      lastIndex = 0;
+      urlMatches.forEach((match, i) => {
+        const url = match[0];
+        const index = match.index!;
+        
+        if (index > lastIndex) {
+          parts.push(content.substring(lastIndex, index));
+        }
+        
+        parts.push(
+          <a
+            key={`url-${msgIdx}-${i}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 inline-block mx-1"
+          >
+            🔗 Link
+          </a>
+        );
+        
+        lastIndex = index + url.length;
+      });
+      
+      if (lastIndex < content.length) {
+        parts.push(content.substring(lastIndex));
+      }
+      
+      return <>{parts}</>;
+    }
+    
+    return content;
   };
 
   if (!isOpen) {
@@ -162,104 +279,33 @@ export const FitnessChat = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-card">
-        {messages.map((msg, idx) => {
-          const renderMessageContent = (content: string) => {
-            // Detect YouTube links in markdown format [text](url) or plain URLs
-            const urlRegex = /(https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^\s)]+)/g;
-            const markdownRegex = /\[([^\]]+)\]\((https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^)]+)\)/g;
-            
-            const parts: (string | JSX.Element)[] = [];
-            let lastIndex = 0;
-            let match;
-
-            // First check for markdown-style links
-            const mdMatches = Array.from(content.matchAll(markdownRegex));
-            if (mdMatches.length > 0) {
-              mdMatches.forEach((mdMatch, i) => {
-                const [fullMatch, linkText, url] = mdMatch;
-                const index = mdMatch.index!;
-                
-                if (index > lastIndex) {
-                  parts.push(content.substring(lastIndex, index));
-                }
-                
-                parts.push(
-                  <a
-                    key={`link-${idx}-${i}`}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 animate-pulse inline-block mx-1"
-                    style={{
-                      textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    🎥 {linkText}
-                  </a>
-                );
-                
-                lastIndex = index + fullMatch.length;
-              });
-              
-              if (lastIndex < content.length) {
-                parts.push(content.substring(lastIndex));
-              }
-              
-              return <>{parts}</>;
-            }
-
-            // Fallback to plain URL detection
-            while ((match = urlRegex.exec(content)) !== null) {
-              const url = match[0];
-              const index = match.index;
-              
-              if (index > lastIndex) {
-                parts.push(content.substring(lastIndex, index));
-              }
-              
-              parts.push(
-                <a
-                  key={`link-${idx}-${parts.length}`}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 animate-pulse inline-block mx-1"
-                  style={{
-                    textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
-                  }}
-                >
-                  🎥 Watch Video
-                </a>
-              );
-              
-              lastIndex = index + url.length;
-            }
-            
-            if (lastIndex < content.length) {
-              parts.push(content.substring(lastIndex));
-            }
-            
-            return parts.length > 0 ? <>{parts}</> : content;
-          };
-
-          return (
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
             <div
-              key={idx}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`max-w-[80%] rounded-lg p-3 shadow-md ${
+                msg.role === "user"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background border-2 border-border text-foreground"
+              }`}
             >
-              <div
-                className={`max-w-[80%] rounded-lg p-3 shadow-md ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background border-2 border-border text-foreground"
-                }`}
-              >
-                {renderMessageContent(msg.content)}
-              </div>
+              {renderMessageContent(msg.content, idx)}
             </div>
-          );
-        })}
+          </div>
+        ))}
+        
+        {/* Loading/Typing Indicator */}
+        {isLoading && messages[messages.length - 1]?.role === "user" && (
+          <div className="flex justify-start">
+            <div className="bg-background border-2 border-border text-foreground rounded-lg p-3 shadow-md flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Thinking...</span>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
@@ -268,7 +314,7 @@ export const FitnessChat = () => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             placeholder="Type your answer..."
             disabled={isLoading}
             className="flex-1 bg-card border-border"

@@ -9,9 +9,39 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages } = await req.json();
+    const { messages, exerciseData } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "AI service not configured. Please check server settings." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Truncate exercise data if too long to avoid token limits
+    const truncatedExerciseData = exerciseData && exerciseData.length > 3000
+      ? exerciseData.substring(0, 3000) + "..."
+      : exerciseData;
+
+    // Build a comprehensive system prompt with the actual exercise data
+    const systemPrompt = `You are an enthusiastic fitness coach for the FitBox app. Help users plan their workouts based on what they feel like doing. Be encouraging, specific, and suggest exercises from the app's library.
+
+IMPORTANT: You have access to the ACTUAL exercises available in the FitBox app. Only recommend exercises from this list. Here are all available exercises organized by muscle group and difficulty:
+
+${truncatedExerciseData || "Exercise data not provided - give general fitness advice."}
+
+GUIDELINES:
+1. When users mention body parts or muscle groups, suggest SPECIFIC exercises from the list above that match their experience level.
+2. For beginners, focus on Beginner-level exercises. For more experienced users, suggest Intermediate or Advanced exercises.
+3. Provide helpful tips about form, sets, and reps.
+4. Keep responses concise and actionable.
+5. Be motivating and supportive!
+6. If asked about exercises not in the list, let them know what similar exercises ARE available in the app.
+7. Do NOT make up exercises or provide links to external resources - stick to recommending exercises from the FitBox library.`;
+
+    console.log("Calling AI gateway with", messages.length, "messages");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -22,9 +52,9 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-1.5-flash",
         messages: [
-          { 
-            role: "system", 
-            content: "You are an enthusiastic fitness coach. Help users plan their workouts based on what they feel like doing. Be encouraging, specific, and suggest exercises based on their preferences. Keep responses concise and actionable. If they mention body parts or muscle groups, suggest specific exercises. When users ask for YouTube links or video demonstrations for exercises, provide direct YouTube links in this format: [Video: Exercise Name](https://youtube.com/watch?v=...). Always search for and provide actual YouTube links for popular exercises when requested." 
+          {
+            role: "system",
+            content: systemPrompt
           },
           ...messages,
         ],
@@ -32,7 +62,12 @@ serve(async (req) => {
       }),
     });
 
+    console.log("AI gateway response status:", response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limits exceeded, please try again later." }), {
           status: 429,
@@ -45,9 +80,14 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      if (response.status === 401) {
+        return new Response(JSON.stringify({ error: "AI service authentication failed. Please check API key." }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ error: `AI gateway error: ${response.status}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -58,17 +98,18 @@ serve(async (req) => {
     });
   } catch (e) {
     // Log detailed error server-side for debugging
-    console.error("chat error:", e);
-    
-    // Return generic error message to client
+    console.error("chat error:", e.message, e.stack);
+
+    // Return error message to client
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: "An error occurred processing your request. Please try again.",
-        error_code: "CHAT_ERROR"
+        error_code: "CHAT_ERROR",
+        details: e.message
       }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    }
     );
   }
 });

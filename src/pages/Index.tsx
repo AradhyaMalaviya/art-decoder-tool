@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { MuscleMapContainer } from "@/components/muscle-map";
-import { FitnessChat } from "@/components/FitnessChat";
+import { GymTrainerChat } from "@/components/GymTrainerChat";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
+      {/* AI Gym Trainer Chatbot */}
+      <GymTrainerChat />
+
       {/* Interactive Muscle Map - Main Feature + Onboarding CTA */}
       <section className="pb-4 pt-2 px-4">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
@@ -34,16 +37,13 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* AI Fitness Chat */}
-      <FitnessChat />
-      
+
       {/* Feature Cards */}
       <section className="py-12 px-6 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Start Workout Card */}
-            <Link 
+            <Link
               to="/workout/active"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-fitness-green/20 to-fitness-green/5 border border-fitness-green/30 p-8 hover:shadow-xl hover:shadow-fitness-green/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
@@ -62,7 +62,7 @@ const Index = () => {
             </Link>
 
             {/* Browse Exercises Card */}
-            <Link 
+            <Link
               to="/exercises"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 p-8 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
@@ -81,7 +81,7 @@ const Index = () => {
             </Link>
 
             {/* Nutrition Card */}
-            <Link 
+            <Link
               to="/nutrition"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/30 p-8 hover:shadow-xl hover:shadow-secondary/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
@@ -101,7 +101,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Stats Section */}
       <section className="py-16 px-6 bg-card/30 border-t border-border/50">
         <div className="max-w-7xl mx-auto">

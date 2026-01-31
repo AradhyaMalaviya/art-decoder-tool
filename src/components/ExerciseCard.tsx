@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -17,6 +18,8 @@ interface ExerciseCardProps {
 }
 
 export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
+  const navigate = useNavigate();
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'bg-fitness-green text-black';
@@ -26,18 +29,33 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
     }
   };
 
+  const handleClick = () => {
+    navigate(`/exercise/${exercise.id}`);
+  };
+
   return (
-    <Card className="group overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 animate-slide-up">
+    <Card
+      onClick={handleClick}
+      className="group overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm transition-all duration-300 hover:border-primary/50 hover:bg-card hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 animate-slide-up cursor-pointer"
+    >
       {exercise.video && (
         <div className="relative w-full aspect-video bg-black/20">
-          <video 
-            src={exercise.video} 
-            autoPlay 
-            loop 
-            muted 
+          <video
+            src={exercise.video}
+            autoPlay
+            loop
+            muted
             playsInline
             className="w-full h-full object-cover"
           />
+          {/* Play overlay hint */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary/80 rounded-full p-3">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
         </div>
       )}
       <div className="p-6 space-y-4">
@@ -49,13 +67,13 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
             {exercise.difficulty}
           </Badge>
         </div>
-        
+
         {exercise.description && (
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
             {exercise.description}
           </p>
         )}
-        
+
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Muscle Group:</span>
@@ -63,12 +81,12 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
               {exercise.muscleGroup}
             </Badge>
           </div>
-          
+
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Duration:</span>
             <span className="text-foreground font-medium">{exercise.duration}</span>
           </div>
-          
+
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Equipment:</span>
             <span className="text-foreground font-medium">{exercise.equipment}</span>
@@ -76,9 +94,9 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
         </div>
 
         <div className="pt-2 border-t border-border/30">
-          <button className="w-full bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground rounded-lg py-2 px-4 text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/30">
-            Start Exercise
-          </button>
+          <div className="w-full bg-primary/10 group-hover:bg-primary text-primary group-hover:text-primary-foreground rounded-lg py-2 px-4 text-sm font-medium transition-all duration-300 text-center group-hover:shadow-lg group-hover:shadow-primary/30">
+            View Details →
+          </div>
         </div>
       </div>
     </Card>
