@@ -4,7 +4,16 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, Utensils, Droplets, Pill, Download } from "lucide-react";
+import { Clock, Utensils, Droplets, Pill, Download, ArrowRightLeft, IndianRupee } from "lucide-react";
+import {
+  getFoodsByMealRole,
+  getFoodsByDietType,
+  bulkingDayPlan,
+  cuttingDayPlan,
+  proteinSwaps,
+  type FoodItem,
+  type DietType
+} from "@/data/indianFoodDatabase";
 
 interface UserData {
   gender: string;
@@ -33,34 +42,86 @@ const NutritionRoadmap = () => {
   }, []);
 
   const calculateNutrition = (data: UserData) => {
-    // Basic BMR calculation (Mifflin-St Jeor)
     const weight = parseFloat(data.weight);
     const height = parseFloat(data.height);
     const age = parseFloat(data.age);
-    
-    let bmr = data.gender === "male" 
+
+    let bmr = data.gender === "male"
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    // Activity multiplier
-    const activityMultiplier = data.activityLevel === "sedentary" ? 1.2 
+    const activityMultiplier = data.activityLevel === "sedentary" ? 1.2
       : data.activityLevel === "moderate" ? 1.55 : 1.725;
-    
+
     let tdee = bmr * activityMultiplier;
 
-    // Goal adjustment
     if (data.goal === "bulk") tdee += 500;
     else if (data.goal === "lean-bulk") tdee += 250;
 
     setCalories(Math.round(tdee));
 
-    // Macro calculations (High protein for muscle building)
-    const protein = Math.round(weight * 2.2); // 2.2g per kg
-    const fats = Math.round((tdee * 0.25) / 9); // 25% of calories
+    const protein = Math.round(weight * 2.2);
+    const fats = Math.round((tdee * 0.25) / 9);
     const carbs = Math.round((tdee - (protein * 4) - (fats * 9)) / 4);
 
     setMacros({ protein, carbs, fats });
   };
+
+  const getDietType = (): DietType => {
+    if (userData?.dietaryPreference === "vegan") return "vegan";
+    if (userData?.dietaryPreference === "vegetarian") return "veg";
+    return "non-veg";
+  };
+
+  const getFilteredFoods = (role: string): FoodItem[] => {
+    const dietType = getDietType();
+    const allFoodsForRole = getFoodsByMealRole(role as any);
+
+    if (dietType === "vegan") {
+      return allFoodsForRole.filter(f => f.dietType === "vegan");
+    }
+    if (dietType === "veg") {
+      return allFoodsForRole.filter(f => f.dietType === "veg" || f.dietType === "vegan");
+    }
+    return allFoodsForRole;
+  };
+
+  const FoodCard = ({ food }: { food: FoodItem }) => (
+    <div className="bg-card/50 border border-border/50 rounded-lg p-3 hover:bg-card/80 transition-colors">
+      <div className="flex justify-between items-start mb-2">
+        <h5 className="font-medium text-sm">{food.name}</h5>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${food.dietType === 'vegan' ? 'bg-green-500/20 text-green-400' :
+            food.dietType === 'veg' ? 'bg-emerald-500/20 text-emerald-400' :
+              'bg-red-500/20 text-red-400'
+          }`}>
+          {food.dietType === 'non-veg' ? '🔴' : '🟢'}
+        </span>
+      </div>
+      <p className="text-xs text-muted-foreground mb-2">{food.serving}</p>
+      <div className="grid grid-cols-4 gap-1 text-xs">
+        <div className="text-center">
+          <div className="font-semibold text-primary">{food.protein}g</div>
+          <div className="text-muted-foreground">Protein</div>
+        </div>
+        <div className="text-center">
+          <div className="font-semibold text-accent">{food.carbs}g</div>
+          <div className="text-muted-foreground">Carbs</div>
+        </div>
+        <div className="text-center">
+          <div className="font-semibold text-secondary">{food.fat}g</div>
+          <div className="text-muted-foreground">Fat</div>
+        </div>
+        <div className="text-center">
+          <div className="font-semibold text-fitness-green">{food.calories}</div>
+          <div className="text-muted-foreground">kcal</div>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+        <IndianRupee className="w-3 h-3" />
+        <span>{food.costRange}</span>
+      </div>
+    </div>
+  );
 
   if (!userData) {
     return (
@@ -76,22 +137,23 @@ const NutritionRoadmap = () => {
   }
 
   const isVeg = userData.dietaryPreference === "vegetarian" || userData.dietaryPreference === "vegan";
+  const currentMealPlan = userData.goal === "bulk" || userData.goal === "lean-bulk" ? bulkingDayPlan : cuttingDayPlan;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <section className="py-12 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4 primary-gradient bg-clip-text text-transparent">
-              Your Personalized Nutrition Roadmap
+              Your Personalized Indian Nutrition Roadmap 🇮🇳
             </h1>
             <p className="text-muted-foreground text-lg mb-6">
-              {planType === "workout" ? "Optimized for training and recovery" : "Focused on muscle building through nutrition"}
+              {planType === "workout" ? "Optimized for training and recovery with desi foods" : "Focused on muscle building through Indian nutrition"}
             </p>
-            
+
             {/* Quick Stats */}
             <div className="flex flex-wrap justify-center gap-4 mb-6">
               <div className="bg-card border border-border rounded-lg p-4 min-w-[150px]">
@@ -118,14 +180,53 @@ const NutritionRoadmap = () => {
             </Button>
           </div>
 
+          {/* Sample Day Plan */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📅 Sample {userData.goal === "bulk" || userData.goal === "lean-bulk" ? "Bulking" : "Cutting"} Day Plan
+              </CardTitle>
+              <CardDescription>
+                {userData.goal === "bulk" || userData.goal === "lean-bulk"
+                  ? "~2800-3000 kcal • ~175-185g protein"
+                  : "~1600-1900 kcal • ~130-150g protein"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-3">Meal</th>
+                      <th className="text-left py-2 px-3">Time</th>
+                      <th className="text-left py-2 px-3">Foods</th>
+                      <th className="text-left py-2 px-3">Protein</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentMealPlan.map((item, idx) => (
+                      <tr key={idx} className="border-b border-border/50 hover:bg-card/50">
+                        <td className="py-3 px-3 font-medium">{item.meal}</td>
+                        <td className="py-3 px-3 text-muted-foreground">{item.time}</td>
+                        <td className="py-3 px-3">{item.foods}</td>
+                        <td className="py-3 px-3 text-primary font-semibold">{item.protein}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Content Based on Plan Type */}
           {planType === "workout" ? (
             <Tabs defaultValue="pre-workout" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="pre-workout">Pre-Workout</TabsTrigger>
                 <TabsTrigger value="post-workout">Post-Workout</TabsTrigger>
                 <TabsTrigger value="rest-day">Rest Day</TabsTrigger>
                 <TabsTrigger value="supplements">Supplements</TabsTrigger>
+                <TabsTrigger value="swaps">Food Swaps</TabsTrigger>
               </TabsList>
 
               <TabsContent value="pre-workout" className="space-y-4 mt-6">
@@ -133,37 +234,17 @@ const NutritionRoadmap = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Clock className="w-5 h-5 text-primary" />
-                      Pre-Workout Nutrition
+                      Pre-Workout Nutrition (60-90 min before)
                     </CardTitle>
                     <CardDescription>
-                      Fuel your muscles 60-90 minutes before training
+                      40% Carbs • 30% Protein • 30% Fats
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-2">Macronutrient Breakdown</h4>
-                      <p className="text-muted-foreground">40% Carbs • 30% Protein • 30% Fats</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-2">Example Meals</h4>
-                      <ul className="space-y-2 text-muted-foreground">
-                        {isVeg ? (
-                          <>
-                            <li>• Oats with banana, nuts, and plant protein shake</li>
-                            <li>• Whole wheat toast with peanut butter and honey</li>
-                            <li>• Greek yogurt with berries and granola</li>
-                            <li>• Brown rice with tofu and vegetables</li>
-                          </>
-                        ) : (
-                          <>
-                            <li>• Oats with banana and whey protein</li>
-                            <li>• Chicken breast with rice and vegetables</li>
-                            <li>• Greek yogurt with honey and berries</li>
-                            <li>• Whole wheat pasta with lean turkey</li>
-                          </>
-                        )}
-                      </ul>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {getFilteredFoods("pre-workout").slice(0, 9).map(food => (
+                        <FoodCard key={food.id} food={food} />
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -174,37 +255,17 @@ const NutritionRoadmap = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Utensils className="w-5 h-5 text-fitness-green" />
-                      Post-Workout Nutrition
+                      Post-Workout Nutrition (30-45 min after)
                     </CardTitle>
                     <CardDescription>
-                      Recovery and muscle repair within 30-45 minutes
+                      50% Protein • 40% Carbs • 10% Fats
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-2">Macronutrient Breakdown</h4>
-                      <p className="text-muted-foreground">50% Protein • 40% Carbs • 10% Fats</p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-2">Example Meals</h4>
-                      <ul className="space-y-2 text-muted-foreground">
-                        {isVeg ? (
-                          <>
-                            <li>• Plant protein shake with banana</li>
-                            <li>• Paneer tikka with brown rice</li>
-                            <li>• Lentil curry with quinoa</li>
-                            <li>• Tofu scramble with sweet potato</li>
-                          </>
-                        ) : (
-                          <>
-                            <li>• Whey protein shake with banana</li>
-                            <li>• Grilled chicken with sweet potato</li>
-                            <li>• Eggs with brown rice and vegetables</li>
-                            <li>• Salmon with quinoa and greens</li>
-                          </>
-                        )}
-                      </ul>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {getFilteredFoods("post-workout").slice(0, 9).map(food => (
+                        <FoodCard key={food.id} food={food} />
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -218,41 +279,14 @@ const NutritionRoadmap = () => {
                       Rest Day Nutrition
                     </CardTitle>
                     <CardDescription>
-                      Support recovery while maintaining muscle mass
+                      ~{Math.round(calories * 0.85)} calories (15% reduction) • Maintain {macros.protein}g protein
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-2">Calorie Adjustment</h4>
-                      <p className="text-muted-foreground">
-                        ~{Math.round(calories * 0.85)} calories (15% reduction from training days)
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-2">Keep Protein High</h4>
-                      <p className="text-muted-foreground">Maintain {macros.protein}g protein for muscle recovery</p>
-                    </div>
-
-                    <div>
-                      <h4 className="font-semibold mb-2">Example Daily Structure</h4>
-                      <ul className="space-y-2 text-muted-foreground">
-                        {isVeg ? (
-                          <>
-                            <li>• Breakfast: Scrambled tofu with oats and nuts</li>
-                            <li>• Lunch: Paneer rice bowl with vegetables</li>
-                            <li>• Dinner: Lentil soup with quinoa and salad</li>
-                            <li>• Snacks: Greek yogurt, nuts, fruits</li>
-                          </>
-                        ) : (
-                          <>
-                            <li>• Breakfast: Eggs with oats and berries</li>
-                            <li>• Lunch: Chicken rice bowl with vegetables</li>
-                            <li>• Dinner: Fish with sweet potato and greens</li>
-                            <li>• Snacks: Cottage cheese, nuts, protein shake</li>
-                          </>
-                        )}
-                      </ul>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {getFilteredFoods("rest-day").slice(0, 9).map(food => (
+                        <FoodCard key={food.id} food={food} />
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -278,12 +312,49 @@ const NutritionRoadmap = () => {
                     <div>
                       <h4 className="font-semibold mb-2">Recommended Supplements</h4>
                       <ul className="space-y-2 text-muted-foreground">
-                        <li>• <strong>Whey/Plant Protein:</strong> 25-30g post-workout</li>
-                        <li>• <strong>Creatine Monohydrate:</strong> 5g daily</li>
+                        <li>• <strong>Whey/Plant Protein:</strong> 25-30g post-workout (₹40-100/serving)</li>
+                        <li>• <strong>Creatine Monohydrate:</strong> 5g daily (₹10-20/serving)</li>
                         <li>• <strong>Fish Oil/Omega-3:</strong> 2-3g daily</li>
                         <li>• <strong>Multivitamin:</strong> Once daily with meals</li>
                         <li>• <strong>Vitamin D3:</strong> 2000-4000 IU daily</li>
                       </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold mb-2">Desi Alternatives</h4>
+                      <ul className="space-y-2 text-muted-foreground">
+                        <li>• <strong>Sattu:</strong> Natural pre-workout (₹6-15/serving)</li>
+                        <li>• <strong>Coconut Water:</strong> Post-workout hydration (₹20-50)</li>
+                        <li>• <strong>Buttermilk (Chaas):</strong> Rest day recovery (₹8-20)</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="swaps" className="space-y-4 mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ArrowRightLeft className="w-5 h-5 text-primary" />
+                      Protein-Equivalent Food Swaps
+                    </CardTitle>
+                    <CardDescription>
+                      Easily swap foods based on your diet preference or budget
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {proteinSwaps.map((swap, idx) => (
+                        <div key={idx} className="flex items-center gap-4 p-3 bg-card/50 rounded-lg border border-border/50">
+                          <div className="flex-1 text-sm font-medium">{swap.item1}</div>
+                          <ArrowRightLeft className="w-4 h-4 text-muted-foreground" />
+                          <div className="flex-1 text-sm font-medium">{swap.item2}</div>
+                          <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
+                            {swap.proteinDiff}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -296,32 +367,15 @@ const NutritionRoadmap = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Utensils className="w-5 h-5 text-primary" />
-                    Morning Routine (6-8 AM)
+                    Morning (6-8 AM) 🌅
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold mb-2">Start Your Day Right</h4>
-                    <p className="text-muted-foreground mb-2">Begin with warm water + lemon for metabolism boost</p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2">Breakfast Ideas</h4>
-                    <ul className="space-y-2 text-muted-foreground">
-                      {isVeg ? (
-                        <>
-                          <li>• Oatmeal with nuts, seeds, and plant protein</li>
-                          <li>• Whole wheat toast with avocado and tofu scramble</li>
-                          <li>• Smoothie bowl with fruits, protein powder, and granola</li>
-                        </>
-                      ) : (
-                        <>
-                          <li>• Eggs (3-4) with whole wheat toast and avocado</li>
-                          <li>• Oatmeal with whey protein and mixed berries</li>
-                          <li>• Greek yogurt with granola and honey</li>
-                        </>
-                      )}
-                    </ul>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">Start with warm water + lemon for metabolism boost</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getFilteredFoods("breakfast").slice(0, 6).map(food => (
+                      <FoodCard key={food.id} food={food} />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -330,27 +384,14 @@ const NutritionRoadmap = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Utensils className="w-5 h-5 text-fitness-green" />
-                    Lunch (12-2 PM)
+                    Lunch (12-2 PM) 🍛
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div>
-                    <h4 className="font-semibold mb-2">High-Protein Meals</h4>
-                    <ul className="space-y-2 text-muted-foreground">
-                      {isVeg ? (
-                        <>
-                          <li>• Brown rice + lentil dal + mixed vegetables + salad</li>
-                          <li>• Quinoa bowl with chickpeas, paneer, and tahini dressing</li>
-                          <li>• Whole wheat pasta with tofu and vegetable sauce</li>
-                        </>
-                      ) : (
-                        <>
-                          <li>• Grilled chicken breast + brown rice + vegetables</li>
-                          <li>• Salmon + quinoa + leafy greens</li>
-                          <li>• Lean beef + sweet potato + broccoli</li>
-                        </>
-                      )}
-                    </ul>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getFilteredFoods("main-meal").slice(0, 6).map(food => (
+                      <FoodCard key={food.id} food={food} />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -359,44 +400,14 @@ const NutritionRoadmap = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Utensils className="w-5 h-5 text-accent" />
-                    Evening Snack (4-5 PM)
+                    Snacks (4-5 PM) 🥜
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li>• Handful of mixed nuts (almonds, walnuts, cashews)</li>
-                    <li>• Protein shake with banana</li>
-                    <li>• Greek yogurt with berries</li>
-                    <li>• Boiled eggs or hummus with veggie sticks</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Utensils className="w-5 h-5 text-secondary" />
-                    Dinner (7-9 PM)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <h4 className="font-semibold mb-2">Light, High-Protein Meals</h4>
-                    <ul className="space-y-2 text-muted-foreground">
-                      {isVeg ? (
-                        <>
-                          <li>• Paneer tikka with mixed salad and cucumber raita</li>
-                          <li>• Tofu stir-fry with vegetables and quinoa</li>
-                          <li>• Chickpea curry with brown rice</li>
-                        </>
-                      ) : (
-                        <>
-                          <li>• Grilled fish + steamed vegetables + small portion of rice</li>
-                          <li>• Chicken breast salad with olive oil dressing</li>
-                          <li>• Turkey meatballs with zucchini noodles</li>
-                        </>
-                      )}
-                    </ul>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {getFilteredFoods("snack").slice(0, 6).map(food => (
+                      <FoodCard key={food.id} food={food} />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -413,7 +424,7 @@ const NutritionRoadmap = () => {
                     <h4 className="font-semibold mb-2">Water Intake</h4>
                     <p className="text-muted-foreground">Aim for 3-4 liters throughout the day</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="font-semibold mb-2">Key Principles</h4>
                     <ul className="space-y-2 text-muted-foreground">
@@ -422,6 +433,30 @@ const NutritionRoadmap = () => {
                       <li>• Keep dinner light and early</li>
                       <li>• Stay consistent with meal timing</li>
                     </ul>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Food Swaps for Non-Workout */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ArrowRightLeft className="w-5 h-5 text-primary" />
+                    Protein-Equivalent Swaps
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {proteinSwaps.slice(0, 5).map((swap, idx) => (
+                      <div key={idx} className="flex items-center gap-4 p-3 bg-card/50 rounded-lg border border-border/50">
+                        <div className="flex-1 text-sm font-medium">{swap.item1}</div>
+                        <ArrowRightLeft className="w-4 h-4 text-muted-foreground" />
+                        <div className="flex-1 text-sm font-medium">{swap.item2}</div>
+                        <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
+                          {swap.proteinDiff}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
