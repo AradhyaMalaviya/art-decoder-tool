@@ -50,7 +50,7 @@ export const MUSCLE_MAPPINGS: Record<string, MuscleMapping> = {
     exerciseGroup: "Legs",
     displayName: "Calves",
   },
-  
+
   // Back view muscles
   back: {
     diagramId: "back",
@@ -62,7 +62,7 @@ export const MUSCLE_MAPPINGS: Record<string, MuscleMapping> = {
     exerciseGroup: "Legs",
     displayName: "Legs",
   },
-  
+
   // Detailed muscle groups (from MuscleMapSVG)
   traps: {
     diagramId: "traps",
@@ -103,6 +103,37 @@ export const MUSCLE_MAPPINGS: Record<string, MuscleMapping> = {
     diagramId: "hamstrings",
     exerciseGroup: "Legs",
     displayName: "Hamstrings",
+  },
+  // Additional mappings for InteractiveBodyDiagram
+  neck: {
+    diagramId: "neck",
+    exerciseGroup: "Shoulders",
+    displayName: "Neck",
+  },
+  adductors: {
+    diagramId: "adductors",
+    exerciseGroup: "Legs",
+    displayName: "Adductors",
+  },
+  rear_delts: {
+    diagramId: "rear_delts",
+    exerciseGroup: "Shoulders",
+    displayName: "Rear Deltoids",
+  },
+  rhomboids: {
+    diagramId: "rhomboids",
+    exerciseGroup: "Back",
+    displayName: "Rhomboids",
+  },
+  calves_front: {
+    diagramId: "calves_front",
+    exerciseGroup: "Legs",
+    displayName: "Tibialis Anterior",
+  },
+  calves_back: {
+    diagramId: "calves_back",
+    exerciseGroup: "Legs",
+    displayName: "Calves",
   },
 };
 
