@@ -107,29 +107,25 @@ export interface InspirationPreset {
 export const INSPIRATION_PRESETS: InspirationPreset[] = [
   {
     name: "Goku",
-    imageUrl:
-      "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&w=400",
+    imageUrl: "/images/presets/goku.jpg",
     tags: ["lean", "explosive", "athletic", "high-energy"],
     description: "Lean, explosive, anime-style athletic build.",
   },
   {
     name: "Thor",
-    imageUrl:
-      "https://images.pexels.com/photos/3837753/pexels-photo-3837753.jpeg?auto=compress&w=400",
+    imageUrl: "/images/presets/thor.jpg",
     tags: ["bulky", "powerful", "broad-shoulders", "strength"],
     description: "Thick, powerful frame with strong upper body.",
   },
   {
     name: "Captain America",
-    imageUrl:
-      "https://images.pexels.com/photos/3837780/pexels-photo-3837780.jpeg?auto=compress&w=400",
+    imageUrl: "/images/presets/captain-america.jpg",
     tags: ["athletic", "balanced", "heroic", "functional"],
     description: "Balanced, athletic superhero look.",
   },
   {
     name: "Toji",
-    imageUrl:
-      "https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&w=400",
+    imageUrl: "/images/presets/toji.jpg",
     tags: ["lean", "dense-muscle", "sharp", "agile"],
     description: "Leaner, dense muscle with sharp lines.",
   },
