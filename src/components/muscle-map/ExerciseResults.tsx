@@ -4,6 +4,7 @@ import { Search, Target, Dumbbell } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { ExerciseVideoPlayer } from "@/components/exercise/ExerciseVideoPlayer";
 
 interface ExerciseResultsProps {
   selectedMuscle: string | null;
@@ -125,13 +126,9 @@ export const ExerciseResults = ({
               {/* Video */}
               {selectedExercise.video && (
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                  <video
-                    src={selectedExercise.video}
-                    className="w-full h-full object-cover"
-                    controls
-                    autoPlay
-                    muted
-                    loop
+                  <ExerciseVideoPlayer
+                    exercise={selectedExercise}
+                    className="h-full w-full object-cover"
                   />
                 </div>
               )}

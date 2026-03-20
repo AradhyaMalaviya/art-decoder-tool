@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Send, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { exercises } from "@/data/exercises";
+import { supabasePublishableKey, supabaseUrl } from "@/lib/env";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -34,7 +35,7 @@ export const FitnessChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fitness-chat`;
+  const CHAT_URL = `${supabaseUrl}/functions/v1/fitness-chat`;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,7 +72,7 @@ export const FitnessChat = () => {
       // Build headers with proper authentication
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        "apikey": supabasePublishableKey,
       };
       
       // Add Authorization header if user is logged in
@@ -79,7 +80,7 @@ export const FitnessChat = () => {
         headers["Authorization"] = `Bearer ${session.access_token}`;
       } else {
         // Use anon key for guests
-        headers["Authorization"] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+        headers["Authorization"] = `Bearer ${supabasePublishableKey}`;
       }
 
       const resp = await fetch(CHAT_URL, {

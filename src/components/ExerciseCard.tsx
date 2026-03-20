@@ -1,17 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-interface Exercise {
-  id: string;
-  name: string;
-  muscleGroup: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  duration: string;
-  equipment: string;
-  video?: string;
-  description?: string;
-}
+import { ExercisePoster } from "@/components/exercise/ExercisePoster";
+import type { Exercise } from "@/data/exercises";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -40,22 +31,7 @@ export const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
     >
       {exercise.video && (
         <div className="relative w-full aspect-video bg-black/20">
-          <video
-            src={exercise.video}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          {/* Play overlay hint */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary/80 rounded-full p-3">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
+          <ExercisePoster exercise={exercise} />
         </div>
       )}
       <div className="p-6 space-y-4">

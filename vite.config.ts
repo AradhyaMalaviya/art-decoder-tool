@@ -4,10 +4,37 @@ import path from "path";
 
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return;
+          }
+
+          if (id.includes("@supabase")) {
+            return "supabase";
+          }
+
+          if (id.includes("@tanstack")) {
+            return "react-query";
+          }
+
+          if (id.includes("@radix-ui") || id.includes("lucide-react")) {
+            return "ui";
+          }
+
+          if (id.includes("react-router-dom") || id.includes("react-dom") || id.includes("\\react\\") || id.includes("/react/")) {
+            return "react";
+          }
+        },
+      },
+    },
   },
   plugins: [react()],
   resolve: {
@@ -20,7 +47,7 @@ export default defineConfig(({ mode }) => ({
   },
   // Simple dev-only API mock for onboarding preferences
   configureServer(server) {
-    const preferences: any[] = [];
+    const preferences: Record<string, unknown>[] = [];
 
     server.middlewares.use("/api/onboarding/preferences", async (req, res, next) => {
       if (req.method !== "POST") return next();

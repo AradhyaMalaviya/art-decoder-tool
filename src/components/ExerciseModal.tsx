@@ -2,7 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { exercises, Exercise } from "@/data/exercises";
-import { X, Dumbbell, Clock } from "lucide-react";
+import { Dumbbell, Clock } from "lucide-react";
+import { ExercisePoster } from "@/components/exercise/ExercisePoster";
 
 interface ExerciseModalProps {
   isOpen: boolean;
@@ -72,18 +73,7 @@ export const ExerciseModal = ({ isOpen, onClose, muscleGroup }: ExerciseModalPro
                 {/* Video Thumbnail */}
                 {exercise.video && (
                   <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
-                    <video
-                      src={exercise.video}
-                      className="w-full h-full object-cover"
-                      muted
-                      loop
-                      playsInline
-                      onMouseEnter={(e) => e.currentTarget.play()}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
-                      }}
-                    />
+                    <ExercisePoster exercise={exercise} />
                   </div>
                 )}
 

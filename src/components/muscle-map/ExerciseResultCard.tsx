@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Play, Info } from "lucide-react";
 import type { Exercise } from "@/data/exercises";
+import { ExercisePoster } from "@/components/exercise/ExercisePoster";
 
 interface ExerciseResultCardProps {
   exercise: Exercise;
@@ -20,6 +21,12 @@ export const ExerciseResultCard = ({
 }: ExerciseResultCardProps) => {
   return (
     <div className="group bg-card/60 backdrop-blur-sm rounded-xl border border-border p-4 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 animate-fade-in">
+      {exercise.video ? (
+        <div className="mb-4 overflow-hidden rounded-lg border border-border/60 bg-muted aspect-video">
+          <ExercisePoster exercise={exercise} />
+        </div>
+      ) : null}
+
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
