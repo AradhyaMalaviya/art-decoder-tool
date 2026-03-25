@@ -1,73 +1,69 @@
-# Welcome to your Lovable project
+# FitBox — Comprehensive AI Fitness & Nutrition Platform
 
-## Project info
+**FitBox** is a full-stack, AI-powered fitness and nutrition web application designed to provide an immersive, personalized health and wellness experience. Built with React 18, TypeScript, and Vite, FitBox combines cutting-edge AI technologies — including Google Gemini 1.5 Flash for real-time conversational assistance and a custom NLP engine for local intent recognition — with a rich interactive front-end.
 
-**URL**: https://lovable.dev/projects/12447993-e2b0-4dae-a52f-ceecc07f2345
+## 🌟 Key Features
 
-## How can I edit this code?
+### 🤖 Dual AI Integration
+- **Cloud-Based AI Fitness Chat:** Powered by Google Gemini 1.5 Flash for real-time, streaming conversational assistance on fitness programming and nutrition.
+- **Local NLP Gym Trainer Chat:** A client-side, zero-latency chatbot operating entirely offline using intent classification and cosine similarity to provide instant exercise recommendations.
+- **Inspiration-Based Physique Scoring:** An algorithm analyzing user-selected character presets (Goku, Thor, Captain America, etc.) to tailor workout and nutrition targets.
 
-There are several ways of editing your application.
+### 🏋️ Interactive Workout Experience
+- **Interactive SVG Body Diagram:** A fully custom, anatomically accurate muscle map providing click-to-explore access to exercises by body part.
+- **Exercise Directory:** Over 50+ exercises categorized by muscle group and difficulty, complete with video demonstrations and form instructions.
+- **Personalized Workout Generator:** An intelligent wizard that creates custom routines based on user level and target muscles.
+- **Real-Time Workout Tracker:** Monitor elapsed time, log sets, track reps/weights, and save progress directly to Supabase.
 
-**Use Lovable**
+### 🥗 Indian Nutrition Engine
+- **Algorithmic Nutrition Calculator:** Computes personalized calorie and macronutrient targets based on Mifflin-St Jeor BMR equations.
+- **Culturally Specific Diet Plans:** Features an extensive database of Indian foods adapted for bulking, cutting, or recomposition.
+- **Customizable Meal Roles:** Tailored suggestions for pre-workout, post-workout, and rest days, with vegetarian, non-vegetarian, and vegan options.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/12447993-e2b0-4dae-a52f-ceecc07f2345) and start prompting.
+### 👤 User Capabilities & Onboarding
+- **5-Step Personalization Wizard:** Collects body stats, inspiration, dietary restrictions, allergies, and workout schedules.
+- **Authentication:** Secure user sign-up/sign-in or guest access, managed via Supabase Auth.
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Technology Stack
+- **Frontend Framework:** React 18 + TypeScript
+- **Build Tool:** Vite 5
+- **Styling:** Tailwind CSS + shadcn/ui
+- **State Management:** React Context API
+- **Backend-as-a-Service:** Supabase (PostgreSQL, Auth, Edge Functions)
+- **Icons:** Lucide React
 
-**Use your preferred IDE**
+## 💻 Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+To run the project locally on your machine, follow these steps:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites:
+- Node.js & npm (v18+)
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone the repository and navigate into the project:**
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd <project_directory>
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. **Set up environment variables:**
+   Ensure your `.env` file in the project root is properly configured with your Supabase credentials. Here's what is expected:
+   ```env
+   VITE_SUPABASE_PROJECT_ID="..."
+   VITE_SUPABASE_PUBLISHABLE_KEY="..."
+   VITE_SUPABASE_URL="..."
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+4. **Start the local development server:**
+   ```bash
+   npm run dev
+   ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/12447993-e2b0-4dae-a52f-ceecc07f2345) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🌐 Deployment
+This application was scaffolded with Lovable. It can be seamlessly deployed using Lovable's one-click publish feature, or statically hosted on standard platforms. Custom domains are also fully supported.
