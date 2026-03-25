@@ -6,8 +6,10 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   server: {
-    host: "::",
-    port: 8080,
+    host: "localhost",
+    port: 5173,
+    strictPort: false,
+    open: true,
   },
   build: {
     rollupOptions: {
@@ -46,15 +48,15 @@ export default defineConfig(() => ({
     include: ['react', 'react-dom'],
   },
   // Simple dev-only API mock for onboarding preferences
-  configureServer(server) {
+  configureServer(server: any) {
     const preferences: Record<string, unknown>[] = [];
 
-    server.middlewares.use("/api/onboarding/preferences", async (req, res, next) => {
+    server.middlewares.use("/api/onboarding/preferences", async (req: any, res: any, next: any) => {
       if (req.method !== "POST") return next();
 
       try {
         let body = "";
-        req.on("data", (chunk) => {
+        req.on("data", (chunk: any) => {
           body += chunk;
         });
         req.on("end", () => {
