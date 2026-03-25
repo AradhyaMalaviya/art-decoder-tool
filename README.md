@@ -2,6 +2,11 @@
 
 **FitBox** is a full-stack, AI-powered fitness and nutrition web application designed to provide an immersive, personalized health and wellness experience. Built with React 18, TypeScript, and Vite, FitBox combines cutting-edge AI technologies — including Google Gemini 1.5 Flash for real-time conversational assistance and a custom NLP engine for local intent recognition — with a rich interactive front-end.
 
+## Project info
+**URL**: https://lovable.dev/projects/12447993-e2b0-4dae-a52f-ceecc07f2345
+
+Changes made via Lovable will be committed automatically to this repo
+
 ---
 
 ## 🌟 Key Features

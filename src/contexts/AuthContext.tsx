@@ -167,9 +167,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Signup error:', error);
-      return { success: false, error: error.message || 'Failed to sign up' };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to sign up' };
     }
   };
 
@@ -202,9 +202,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       return { success: true };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Signin error:', error);
-      return { success: false, error: error.message || 'Failed to sign in' };
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to sign in' };
     }
   };
 

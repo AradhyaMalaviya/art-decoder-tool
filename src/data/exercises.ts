@@ -1,3 +1,5 @@
+import { buildExerciseMediaUrl } from "@/lib/exerciseMedia";
+
 export interface Exercise {
   id: string;
   name: string;
@@ -6,8 +8,14 @@ export interface Exercise {
   duration: string;
   equipment: string;
   video?: string;
+  poster?: string;
   description?: string;
 }
+
+const media = (filename: string) => ({
+  video: buildExerciseMediaUrl("videos", filename),
+  poster: buildExerciseMediaUrl("posters", filename.replace(/\.mp4$/, ".svg")),
+});
 
 export const exercises: Exercise[] = [
   // ========== BEGINNER EXERCISES ==========
@@ -20,7 +28,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 10-15 reps',
     equipment: 'Bodyweight',
-    video: '/src/assets/pushups-video.mp4',
+    ...media('pushups-video.mp4'),
     description: 'A fundamental bodyweight exercise for chest development'
   },
   {
@@ -125,7 +133,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
     equipment: 'Dumbbells',
-    video: '/src/assets/bicep-curls-video.mp4'
+    ...media('bicep-curls-video.mp4')
   },
   {
     id: '12',
@@ -134,7 +142,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
     equipment: 'Dumbbells',
-    video: '/src/assets/hammer-curls-video.mp4'
+    ...media('hammer-curls-video.mp4')
   },
 
   // Beginner - Shoulders
@@ -145,7 +153,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 12-15 reps',
     equipment: 'Dumbbells',
-    video: '/src/assets/lateral-raises-video.mp4',
+    ...media('lateral-raises-video.mp4'),
     description: 'An isolation exercise that targets the lateral deltoids to build broader shoulders'
   },
 
@@ -157,7 +165,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 30-60 seconds',
     equipment: 'Bodyweight',
-    video: '/src/assets/plank-video.mp4',
+    ...media('plank-video.mp4'),
     description: 'A fundamental core exercise that builds stability and endurance'
   },
   {
@@ -167,7 +175,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Beginner',
     duration: '3 sets x 10 each side',
     equipment: 'Bodyweight',
-    video: '/src/assets/dead-bug-video.mp4',
+    ...media('dead-bug-video.mp4'),
     description: 'An excellent exercise for core stability and coordination'
   },
 
@@ -181,7 +189,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Intermediate',
     duration: '4 sets x 8-12 reps',
     equipment: 'Barbell',
-    video: '/src/assets/benchpress-video.mp4',
+    ...media('benchpress-video.mp4'),
     description: 'The classic chest-building exercise'
   },
   {
@@ -466,7 +474,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Intermediate',
     duration: '3 sets x 10-12 reps',
     equipment: 'Bench',
-    video: '/src/assets/tricep-dips-video.mp4'
+    ...media('tricep-dips-video.mp4')
   },
 
   // Intermediate - Shoulders
@@ -477,7 +485,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Intermediate',
     duration: '4 sets x 8-12 reps',
     equipment: 'Dumbbells',
-    video: '/src/assets/shoulder-press-video.mp4',
+    ...media('shoulder-press-video.mp4'),
     description: 'A compound pressing movement that builds overall shoulder strength and mass'
   },
   {
@@ -487,7 +495,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Intermediate',
     duration: '3 sets x 8-12 reps',
     equipment: 'Bodyweight',
-    video: '/src/assets/pike-pushups-video.mp4',
+    ...media('pike-pushups-video.mp4'),
     description: 'A bodyweight exercise that targets the shoulders by mimicking an overhead press movement'
   },
 
@@ -499,7 +507,7 @@ export const exercises: Exercise[] = [
     difficulty: 'Intermediate',
     duration: '3 sets x 20 reps',
     equipment: 'Medicine Ball',
-    video: '/src/assets/russian-twists-video.mp4',
+    ...media('russian-twists-video.mp4'),
     description: 'A rotational core exercise that targets the obliques and improves rotational strength'
   },
 
