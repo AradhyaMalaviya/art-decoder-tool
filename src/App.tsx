@@ -6,6 +6,7 @@ import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index"));
 const Exercises = lazy(() => import("./pages/Exercises"));
@@ -49,7 +50,8 @@ const App = () => (
       <BrowserRouter>
         <AnalyticsTracker />
         <AuthProvider>
-          <Suspense fallback={<RouteLoader />}>
+          <ErrorBoundary>
+            <Suspense fallback={<RouteLoader />}>
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
@@ -66,6 +68,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
