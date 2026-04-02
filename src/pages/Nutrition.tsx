@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Dumbbell, Salad } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Nutrition = () => {

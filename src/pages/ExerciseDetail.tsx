@@ -1,10 +1,10 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { exercises } from "@/data/exercises";
-import { ArrowLeft, Clock, Dumbbell, Target, Info } from "lucide-react";
+import { ArrowLeft, Clock, Dumbbell, Target, Info, Zap, Play } from "lucide-react";
 import { ExerciseVideoPlayer } from "@/components/exercise/ExerciseVideoPlayer";
 
 const ExerciseDetail = () => {

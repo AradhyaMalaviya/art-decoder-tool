@@ -153,7 +153,6 @@ Which exercise do you want to learn more about?`;
 
         // Check for "how to" or form questions
         if (lowerMessage.includes('how') || lowerMessage.includes('form') || lowerMessage.includes('technique')) {
-            const exerciseNames = exercises.map(e => e.name.toLowerCase());
             const mentionedExercise = exercises.find(e =>
                 lowerMessage.includes(e.name.toLowerCase())
             );
@@ -237,10 +236,11 @@ I'm here to help you crush your ${selectedBodyPart} workout! You can ask me:
 What do you want to know?`;
     };
 
-    const sendMessage = async () => {
-        if (!input.trim() || isLoading) return;
+    const sendMessage = async (overrideMessage?: string) => {
+        const messageText = overrideMessage || input;
+        if (!messageText.trim() || isLoading) return;
 
-        const userMsg: Message = { role: "user", content: input };
+        const userMsg: Message = { role: "user", content: messageText };
         setMessages(prev => [...prev, userMsg]);
         setInput("");
         setIsLoading(true);
@@ -248,7 +248,7 @@ What do you want to know?`;
         // Simulate AI thinking delay
         await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
 
-        const response = generateResponse(input);
+        const response = generateResponse(messageText);
         setMessages(prev => [...prev, { role: "assistant", content: response }]);
         setIsLoading(false);
     };
@@ -391,8 +391,7 @@ What do you want to know?`;
                                 size="sm"
                                 className="text-xs"
                                 onClick={() => {
-                                    setInput(part);
-                                    setTimeout(() => sendMessage(), 100);
+                                    sendMessage(part);
                                 }}
                             >
                                 {part}

@@ -319,7 +319,7 @@ const Onboarding = () => {
           )}
 
           {inspirationImages.length === 2 && (
-            <Button type="button" variant="outline" size="xs" onClick={handleSwapImages} className="mb-4">
+            <Button type="button" variant="outline" size="sm" onClick={handleSwapImages} className="mb-4">
               Swap image order
             </Button>
           )}
