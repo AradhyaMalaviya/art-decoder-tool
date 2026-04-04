@@ -1,10 +1,11 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { exercises } from "@/data/exercises";
-import { ArrowLeft, Clock, Dumbbell, Target, Info, Zap, Play } from "lucide-react";
+import { ArrowLeft, Clock, Dumbbell, Target, Info, Zap, Play, AlertTriangle } from "lucide-react";
 import { ExerciseVideoPlayer } from "@/components/exercise/ExerciseVideoPlayer";
 
 const ExerciseDetail = () => {
@@ -75,11 +76,19 @@ const ExerciseDetail = () => {
                     {/* Video Section */}
                     <div className="space-y-4">
                         <div className="relative w-full aspect-video bg-card rounded-2xl overflow-hidden border border-border shadow-xl">
-                            {exercise.video ? (
-                                <ExerciseVideoPlayer
-                                    exercise={exercise}
-                                    className="w-full h-full object-cover"
-                                />
+                            {exercise.video && exercise.video.trim() !== "" ? (
+                                <ErrorBoundary fallback={
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-destructive/10 to-transparent p-6 text-center">
+                                        <AlertTriangle className="h-10 w-10 text-destructive mb-3" />
+                                        <p className="text-foreground font-medium">Video unavailable</p>
+                                        <p className="text-sm text-muted-foreground mt-1">There was an error loading the demonstration video.</p>
+                                    </div>
+                                }>
+                                    <ExerciseVideoPlayer
+                                        exercise={exercise}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </ErrorBoundary>
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
                                     <div className="text-8xl mb-4">🏋️</div>

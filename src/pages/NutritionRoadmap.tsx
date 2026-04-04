@@ -46,7 +46,7 @@ const NutritionRoadmap = () => {
     const height = parseFloat(data.height);
     const age = parseFloat(data.age);
 
-    let bmr = data.gender === "male"
+    const bmr = data.gender === "male"
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
@@ -75,7 +75,7 @@ const NutritionRoadmap = () => {
 
   const getFilteredFoods = (role: string): FoodItem[] => {
     const dietType = getDietType();
-    const allFoodsForRole = getFoodsByMealRole(role as any);
+    const allFoodsForRole = getFoodsByMealRole(role as Parameters<typeof getFoodsByMealRole>[0]);
 
     if (dietType === "vegan") {
       return allFoodsForRole.filter(f => f.dietType === "vegan");

@@ -154,11 +154,11 @@ const Onboarding = () => {
       setWorkoutError(null);
     }
 
-    setStep((prev) => Math.min((prev + 1) as Step, 5));
+    setStep((prev) => Math.min(prev + 1, 5) as Step);
   };
 
   const goBack = () => {
-    setStep((prev) => Math.max((prev - 1) as Step, 1));
+    setStep((prev) => Math.max(prev - 1, 1) as Step);
   };
 
   const handleSubmit = async () => {
@@ -222,9 +222,9 @@ const Onboarding = () => {
         "Nice. Plan saved. Time to actually lift something heavier than your phone. 🏋️‍♂️"
       );
       console.log("Onboarding saved", data, { inspirationScore });
-    } catch (err: any) {
-      console.error(err);
-      setSubmitError(err?.message ?? "Something went wrong saving your preferences.");
+    } catch (error) {
+      console.error(error);
+      setSubmitError(error instanceof Error ? error.message : "Something went wrong saving your preferences.");
     } finally {
       setSubmitting(false);
     }
@@ -319,7 +319,7 @@ const Onboarding = () => {
           )}
 
           {inspirationImages.length === 2 && (
-            <Button type="button" variant="outline" size="sm" onClick={handleSwapImages} className="mb-4">
+            <Button type="button" variant="outline" size="sm" onClick={handleSwapImages} className="text-xs mb-4">
               Swap image order
             </Button>
           )}
