@@ -48,14 +48,16 @@ export default defineConfig(() => ({
     include: ['react', 'react-dom'],
   },
   // Simple dev-only API mock for onboarding preferences
-  configureServer(server: any) {
+  configureServer(server: import('vite').ViteDevServer) {
     const preferences: Record<string, unknown>[] = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     server.middlewares.use("/api/onboarding/preferences", async (req: any, res: any, next: any) => {
       if (req.method !== "POST") return next();
 
       try {
         let body = "";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         req.on("data", (chunk: any) => {
           body += chunk;
         });

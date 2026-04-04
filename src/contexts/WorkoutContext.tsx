@@ -64,7 +64,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         clearInterval(timerRef.current);
       }
     };
-  }, [activeWorkout?.startedAt]);
+  }, [activeWorkout, activeWorkout?.startedAt]);
 
   const startWorkout = useCallback((name: string) => {
     setActiveWorkout({
