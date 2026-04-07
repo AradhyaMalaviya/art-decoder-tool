@@ -12,10 +12,18 @@ export interface Exercise {
   description?: string;
 }
 
-const media = (filename: string) => ({
-  video: buildExerciseMediaUrl("videos", filename),
-  poster: buildExerciseMediaUrl("posters", filename.replace(/\.mp4$/, ".svg")),
-});
+const media = (filenameOrUrl: string) => {
+  if (filenameOrUrl.startsWith('http')) {
+    return {
+      video: filenameOrUrl,
+      poster: undefined
+    };
+  }
+  return {
+    video: buildExerciseMediaUrl("videos", filenameOrUrl),
+    poster: buildExerciseMediaUrl("posters", filenameOrUrl.replace(/\.mp4$/, ".svg")),
+  };
+};
 
 export const exercises: Exercise[] = [
   // ========== BEGINNER EXERCISES ==========

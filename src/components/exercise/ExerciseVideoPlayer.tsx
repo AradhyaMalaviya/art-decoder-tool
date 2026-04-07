@@ -20,6 +20,11 @@ export const ExerciseVideoPlayer = ({
 }: ExerciseVideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showPoster, setShowPoster] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    throw new Error("Media failed to load");
+  }
 
   useEffect(() => {
     setShowPoster(true);
@@ -27,6 +32,13 @@ export const ExerciseVideoPlayer = ({
 
   useEffect(() => {
     const video = videoRef.current;
+
+    if (video && autoPlay) {
+       video.muted = muted;
+       video.play().catch((err) => {
+         console.warn("Autoplay was prevented by the browser:", err);
+       });
+    }
 
     return () => {
       if (!video) {
@@ -36,7 +48,7 @@ export const ExerciseVideoPlayer = ({
       video.pause();
       video.currentTime = 0;
     };
-  }, [exercise.video]);
+  }, [exercise.video, autoPlay, muted]);
 
   if (!exercise.video) {
     return null;
@@ -73,6 +85,7 @@ export const ExerciseVideoPlayer = ({
           allowFullScreen
           className={cn("absolute inset-0 w-full h-full", className)}
           onLoad={() => setShowPoster(false)}
+          onError={() => setHasError(true)}
         />
       ) : (
         <video
@@ -87,6 +100,7 @@ export const ExerciseVideoPlayer = ({
           preload="metadata"
           className={cn("absolute inset-0 w-full h-full object-cover", className)}
           onPlay={() => setShowPoster(false)}
+          onError={() => setHasError(true)}
         />
       )}
     </div>
