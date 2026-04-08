@@ -2,33 +2,38 @@
 <html lang="en">
 
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- 1. Encodings and viewport MUST come first -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>FitBox - Your Ultimate Fitness Companion</title>
+  <meta name="description"
+    content="FitBox is the leading fitness platform for tracking exercises, mastering form, and exploring new workouts across all difficulty levels.">
+  <meta name="author" content="FitBox" />
+
+  <!-- 2. Google tag (gtag.js) safe to load after core meta tags -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WVWXTCFVS2"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'G-WVWXTCFVS2');
   </script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>FitBox</title>
-  <meta name="description" content="FitBox">
-  <meta name="author" content="FitBox" />
 
-
-
+  <!-- 3. Fixed Open Graph & Twitter Cards -->
   <meta property="og:type" content="website" />
-
+  <meta property="og:title" content="FitBox">
+  <meta property="og:description" content="Track your exercises and master your form with FitBox.">
+  <!-- Ensure you place an preview.png file in your public folder! -->
+  <meta property="og:image" content="/preview.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-
-  <meta property="og:title" content="FitBox">
   <meta name="twitter:title" content="FitBox">
-  <meta property="og:description" content="FitBox">
-  <meta name="twitter:description" content="FitBox">
+  <meta name="twitter:description" content="Track your exercises and master your form with FitBox.">
+  <meta name="twitter:image" content="/preview.png" />
 </head>
 
 <body>
