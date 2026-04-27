@@ -47,10 +47,10 @@ export default function GymBuddyChat() {
       setSending(true);
       await sendMessage(inputValue);
       setInputValue("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: "Failed to send message",
-        description: err.message,
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive"
       });
     } finally {

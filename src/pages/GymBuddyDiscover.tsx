@@ -39,10 +39,10 @@ export default function GymBuddyDiscover() {
     try {
       const results = await getCandidates();
       setCandidates(results);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: "Error loading candidates",
-        description: err.message,
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive"
       });
     } finally {
@@ -61,10 +61,10 @@ export default function GymBuddyDiscover() {
       if (match && swipedCandidate) {
         setMatchPartner(swipedCandidate);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: "Action failed",
-        description: err.message,
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive"
       });
       // In a robust app, we might add them back to the stack here

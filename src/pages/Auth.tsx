@@ -42,11 +42,10 @@ const Auth = () => {
 
     if (result.success) {
       toast({
-        title: 'Success!',
-        description: 'Account created successfully. You can now sign in.',
+        title: 'Welcome to FitBox! 🎉',
+        description: 'Your account has been created successfully.',
       });
-      setMode('signin');
-      setPassword('');
+      navigate('/');
     } else {
       toast({
         title: 'Error',

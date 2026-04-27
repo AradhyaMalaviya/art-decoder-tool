@@ -49,10 +49,10 @@ export function GymBuddySessionModal({ matchId, partnerName, isOpen, onClose }: 
       // Reset form
       setDate(new Date());
       setNotes("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: "Error logging session",
-        description: err.message,
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive"
       });
     } finally {

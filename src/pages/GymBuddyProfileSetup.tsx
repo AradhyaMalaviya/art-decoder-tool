@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Header } from "@/components/Header";
 import { useGymBuddy } from "@/hooks/useGymBuddy";
+import { GymBuddyProfile } from "@/lib/gymBuddyTypes";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -114,7 +115,7 @@ export default function GymBuddyProfileSetup() {
         return;
       }
       
-      await saveProfile(values as any);
+      await saveProfile(values as unknown as Partial<GymBuddyProfile>);
       
       toast({
         title: "Profile saved!",
@@ -122,10 +123,10 @@ export default function GymBuddyProfileSetup() {
       });
       
       navigate("/gymbuddy/discover");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error saving profile",
-        description: error.message || "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       });
     } finally {

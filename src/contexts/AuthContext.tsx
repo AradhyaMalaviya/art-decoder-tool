@@ -140,14 +140,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Create email from username for Supabase Auth
       const email = `${normalizedUsername}@fitbox.app`;
-      const redirectUrl = `${window.location.origin}/`;
 
       // Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             username: normalizedUsername,
             phone_number: normalizedPhone
@@ -156,14 +154,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (authError) {
-        if (authError.message.includes('already registered')) {
-          return { success: false, error: 'Username already taken' };
+        if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
+          return { success: false, error: 'Username already taken. Please try a different one.' };
         }
         throw authError;
       }
 
       if (!authData.user) {
         return { success: false, error: 'Failed to create account' };
+      }
+
+      // Check for fake signup (user already exists but Supabase returns user with empty identities)
+      if (authData.user.identities && authData.user.identities.length === 0) {
+        return { success: false, error: 'Username already taken. Please try a different one.' };
+      }
+
+      // If session was returned, user is auto-signed in (email confirmation disabled)
+      if (authData.session) {
+        return { success: true };
+      }
+
+      // If no session but user was created, try to sign in immediately
+      // This handles the case where email confirmation might be enabled
+      // but we want seamless signup since we use fake emails
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        // If sign-in fails after signup, the account was still created
+        // Common case: email confirmation is required
+        if (signInError.message.includes('Email not confirmed')) {
+          return { success: false, error: 'Account created but email confirmation is required. Please contact support or ask the administrator to disable email confirmation in Supabase.' };
+        }
+        // Still return success since the account was created
+        console.warn('Auto sign-in after signup failed:', signInError.message);
+        return { success: true };
       }
 
       return { success: true };
@@ -192,7 +219,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          return { success: false, error: 'Invalid username or password' };
+          return { success: false, error: 'Invalid username or password. Please check your credentials and try again.' };
+        }
+        if (error.message.includes('Email not confirmed')) {
+          return { success: false, error: 'Your account email has not been confirmed. Please contact support.' };
         }
         throw error;
       }

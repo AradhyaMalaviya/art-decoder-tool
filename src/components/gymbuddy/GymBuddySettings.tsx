@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { useGymBuddy } from "@/hooks/useGymBuddy";
+import { ProfileVisibility } from "@/lib/gymBuddyTypes";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -51,16 +52,16 @@ export function GymBuddySettings() {
       setIsSaving(true);
       await saveProfile({
         is_discoverable: isDiscoverable,
-        profile_visibility: visibility as any,
+        profile_visibility: visibility as ProfileVisibility,
       });
       toast({
         title: "Settings updated",
         description: "Your GymBuddy privacy settings have been saved.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error saving settings",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
     } finally {
@@ -86,10 +87,10 @@ export function GymBuddySettings() {
       
       await refreshProfile();
       navigate("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error deleting profile",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
       setIsDeleting(false);

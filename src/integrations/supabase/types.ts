@@ -85,6 +85,168 @@ export type Database = {
         }
         Relationships: []
       }
+      gymbuddy_matches: {
+        Row: {
+          id: string
+          last_session_logged: string | null
+          matched_at: string | null
+          shared_streak: number | null
+          user1_id: string | null
+          user2_id: string | null
+        }
+        Insert: {
+          id?: string
+          last_session_logged?: string | null
+          matched_at?: string | null
+          shared_streak?: number | null
+          user1_id?: string | null
+          user2_id?: string | null
+        }
+        Update: {
+          id?: string
+          last_session_logged?: string | null
+          matched_at?: string | null
+          shared_streak?: number | null
+          user1_id?: string | null
+          user2_id?: string | null
+        }
+        Relationships: []
+      }
+      gymbuddy_messages: {
+        Row: {
+          content: string
+          id: string
+          is_read: boolean | null
+          match_id: string | null
+          sender_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          content: string
+          id?: string
+          is_read?: boolean | null
+          match_id?: string | null
+          sender_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          is_read?: boolean | null
+          match_id?: string | null
+          sender_id?: string | null
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
+      gymbuddy_profiles: {
+        Row: {
+          age_range_max: number
+          age_range_min: number
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string
+          experience_level: string
+          fitness_goals: string[]
+          gender: string | null
+          gym_location: string
+          id: string
+          is_discoverable: boolean | null
+          preferred_timings: string[]
+          profile_visibility: string | null
+          updated_at: string | null
+          workout_split: string
+        }
+        Insert: {
+          age_range_max: number
+          age_range_min: number
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name: string
+          experience_level: string
+          fitness_goals: string[]
+          gender?: string | null
+          gym_location: string
+          id: string
+          is_discoverable?: boolean | null
+          preferred_timings: string[]
+          profile_visibility?: string | null
+          updated_at?: string | null
+          workout_split: string
+        }
+        Update: {
+          age_range_max?: number
+          age_range_min?: number
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string
+          experience_level?: string
+          fitness_goals?: string[]
+          gender?: string | null
+          gym_location?: string
+          id?: string
+          is_discoverable?: boolean | null
+          preferred_timings?: string[]
+          profile_visibility?: string | null
+          updated_at?: string | null
+          workout_split?: string
+        }
+        Relationships: []
+      }
+      gymbuddy_session_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          logged_by: string | null
+          match_id: string | null
+          notes: string | null
+          session_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logged_by?: string | null
+          match_id?: string | null
+          notes?: string | null
+          session_date: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logged_by?: string | null
+          match_id?: string | null
+          notes?: string | null
+          session_date?: string
+        }
+        Relationships: []
+      }
+      gymbuddy_swipes: {
+        Row: {
+          created_at: string | null
+          direction: string | null
+          id: string
+          swiper_id: string | null
+          target_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          swiper_id?: string | null
+          target_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          swiper_id?: string | null
+          target_id?: string | null
+        }
+        Relationships: []
+      }
       payment_transactions: {
         Row: {
           amount_inr: number

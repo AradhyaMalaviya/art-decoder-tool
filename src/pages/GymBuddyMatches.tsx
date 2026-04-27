@@ -84,10 +84,10 @@ export default function GymBuddyMatches() {
       }).filter(m => m.partner); // Only keep if partner profile exists
 
       setMatches(combined);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error loading matches",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive"
       });
     } finally {

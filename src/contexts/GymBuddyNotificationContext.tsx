@@ -16,13 +16,13 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
   const [matches, setMatches] = useState<GymBuddyMatch[]>([]);
   const [partnerProfiles, setPartnerProfiles] = useState<Record<string, GymBuddyProfile>>({});
 
-  const fetchPartnerProfile = async (partnerId: string) => {
+  const fetchPartnerProfile = async (partnerId: string): Promise<GymBuddyProfile | null> => {
     const { data } = await supabase
       .from('gymbuddy_profiles')
       .select('*')
       .eq('id', partnerId)
       .single();
-    return data;
+    return data as GymBuddyProfile | null;
   };
 
   // Initial load
@@ -46,7 +46,7 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
           
         if (profiles) {
           const pMap: Record<string, GymBuddyProfile> = {};
-          profiles.forEach(p => pMap[p.id] = p as GymBuddyProfile);
+          profiles.forEach(p => { pMap[p.id] = p as unknown as GymBuddyProfile; });
           setPartnerProfiles(pMap);
         }
       }
@@ -59,7 +59,7 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
   useEffect(() => {
     if (!user) return;
 
-    const handleNewMatch = async (payload: any) => {
+    const handleNewMatch = async (payload: Record<string, unknown>) => {
       const newMatch = payload.new as GymBuddyMatch;
       
       // Avoid duplicates if we already have it

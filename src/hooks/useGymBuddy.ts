@@ -25,8 +25,8 @@ export function useGymBuddy() {
 
       if (error) throw error;
       setProfile(data as GymBuddyProfile | null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -41,15 +41,16 @@ export function useGymBuddy() {
     try {
       const { data, error } = await supabase
         .from('gymbuddy_profiles')
-        .upsert({ id: user.id, ...updates })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .upsert({ id: user.id, ...updates } as any)
         .select()
         .single();
 
       if (error) throw error;
       setProfile(data as GymBuddyProfile);
       return data;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     }
   };
@@ -98,7 +99,7 @@ export function useGymBuddy() {
       scoredCandidates.sort((a, b) => (b.compatibility_score || 0) - (a.compatibility_score || 0));
 
       return scoredCandidates;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching candidates:', err);
       return [];
     }
@@ -151,7 +152,7 @@ export function useGymBuddy() {
       }
 
       return { match: false };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error swiping:', err);
       throw err;
     }
