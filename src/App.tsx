@@ -6,6 +6,7 @@ import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { GymBuddyNotificationProvider } from "@/contexts/GymBuddyNotificationContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -19,6 +20,13 @@ const NutritionQuestionnaire = lazy(() => import("./pages/NutritionQuestionnaire
 const NutritionRoadmap = lazy(() => import("./pages/NutritionRoadmap"));
 const ActiveWorkout = lazy(() => import("./pages/ActiveWorkout"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+
+// GymBuddy Feature Pages
+const GymBuddyProfileSetup = lazy(() => import("./pages/GymBuddyProfileSetup"));
+const GymBuddyDiscover = lazy(() => import("./pages/GymBuddyDiscover"));
+const GymBuddyMatches = lazy(() => import("./pages/GymBuddyMatches"));
+const GymBuddyChat = lazy(() => import("./pages/GymBuddyChat"));
+const GymBuddySettings = lazy(() => import("./components/gymbuddy/GymBuddySettings").then(m => ({ default: m.GymBuddySettings })));
 
 const queryClient = new QueryClient();
 
@@ -50,25 +58,35 @@ const App = () => (
       <BrowserRouter>
         <AnalyticsTracker />
         <AuthProvider>
-          <ErrorBoundary>
-            <Suspense fallback={<RouteLoader />}>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-              <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
-              <Route path="/exercises/:muscleId" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
-              <Route path="/exercise/:exerciseId" element={<ProtectedRoute><ExerciseDetail /></ProtectedRoute>} />
-              <Route path="/generate-workout" element={<ProtectedRoute><GenerateWorkout /></ProtectedRoute>} />
-              <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
-              <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />
-              <Route path="/nutrition/roadmap" element={<ProtectedRoute><NutritionRoadmap /></ProtectedRoute>} />
-              <Route path="/workout/active" element={<ProtectedRoute><ActiveWorkout /></ProtectedRoute>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          </ErrorBoundary>
+          <GymBuddyNotificationProvider>
+            <ErrorBoundary>
+              <Suspense fallback={<RouteLoader />}>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                <Route path="/exercises" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
+                <Route path="/exercises/:muscleId" element={<ProtectedRoute><Exercises /></ProtectedRoute>} />
+                <Route path="/exercise/:exerciseId" element={<ProtectedRoute><ExerciseDetail /></ProtectedRoute>} />
+                <Route path="/generate-workout" element={<ProtectedRoute><GenerateWorkout /></ProtectedRoute>} />
+                <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
+                <Route path="/nutrition/questionnaire" element={<ProtectedRoute><NutritionQuestionnaire /></ProtectedRoute>} />
+                <Route path="/nutrition/roadmap" element={<ProtectedRoute><NutritionRoadmap /></ProtectedRoute>} />
+                <Route path="/workout/active" element={<ProtectedRoute><ActiveWorkout /></ProtectedRoute>} />
+                
+                {/* GymBuddy Routes */}
+                <Route path="/gymbuddy/setup" element={<ProtectedRoute><GymBuddyProfileSetup /></ProtectedRoute>} />
+                <Route path="/gymbuddy/discover" element={<ProtectedRoute><GymBuddyDiscover /></ProtectedRoute>} />
+                <Route path="/gymbuddy/matches" element={<ProtectedRoute><GymBuddyMatches /></ProtectedRoute>} />
+                <Route path="/gymbuddy/chat/:matchId" element={<ProtectedRoute><GymBuddyChat /></ProtectedRoute>} />
+                <Route path="/gymbuddy/settings" element={<ProtectedRoute><GymBuddySettings /></ProtectedRoute>} />
+
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            </ErrorBoundary>
+          </GymBuddyNotificationProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

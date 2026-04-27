@@ -43,7 +43,7 @@ const Index = () => {
       {/* Feature Cards */}
       <section className="py-12 px-6 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {/* Start Workout Card */}
             <Link
               to="/workout/active"
@@ -95,6 +95,25 @@ const Index = () => {
                 </p>
               </div>
               <div className="absolute top-4 right-4 text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </Link>
+
+            {/* GymBuddy Card */}
+            <Link
+              to="/gymbuddy/discover"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 border border-orange-500/30 p-8 hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+            >
+              <div className="relative z-10">
+                <div className="text-5xl mb-4">🤝</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">GymBuddy</h3>
+                <p className="text-muted-foreground">
+                  Find local partners & match based on your goals
+                </p>
+              </div>
+              <div className="absolute top-4 right-4 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

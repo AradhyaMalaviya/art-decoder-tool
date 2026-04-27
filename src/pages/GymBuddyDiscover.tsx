@@ -1,0 +1,142 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Header } from "@/components/Header";
+import { useGymBuddy } from "@/hooks/useGymBuddy";
+import { GymBuddyCandidate } from "@/lib/gymBuddyTypes";
+import { GymBuddyCard } from "@/components/gymbuddy/GymBuddyCard";
+import { GymBuddyEmpty } from "@/components/gymbuddy/GymBuddyEmpty";
+import { GymBuddyMatchOverlay } from "@/components/gymbuddy/GymBuddyMatchOverlay";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+export default function GymBuddyDiscover() {
+  const { profile, loading, error, getCandidates, swipe } = useGymBuddy();
+  const [candidates, setCandidates] = useState<GymBuddyCandidate[]>([]);
+  const [fetching, setFetching] = useState(true);
+  const [matchPartner, setMatchPartner] = useState<GymBuddyCandidate | null>(null);
+  
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && !profile) {
+      toast({
+        title: "Profile Required",
+        description: "Please set up your GymBuddy profile first.",
+      });
+      navigate("/gymbuddy/setup");
+    }
+  }, [loading, profile, navigate, toast]);
+
+  useEffect(() => {
+    if (profile) {
+      loadCandidates();
+    }
+  }, [profile]);
+
+  const loadCandidates = async () => {
+    setFetching(true);
+    try {
+      const results = await getCandidates();
+      setCandidates(results);
+    } catch (err: any) {
+      toast({
+        title: "Error loading candidates",
+        description: err.message,
+        variant: "destructive"
+      });
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const handleSwipe = async (direction: 'left' | 'right', candidateId: string) => {
+    const swipedCandidate = candidates.find(c => c.id === candidateId);
+    
+    // Optimistically remove from stack
+    setCandidates(prev => prev.filter(c => c.id !== candidateId));
+
+    try {
+      const { match } = await swipe(candidateId, direction);
+      if (match && swipedCandidate) {
+        setMatchPartner(swipedCandidate);
+      }
+    } catch (err: any) {
+      toast({
+        title: "Action failed",
+        description: err.message,
+        variant: "destructive"
+      });
+      // In a robust app, we might add them back to the stack here
+    }
+  };
+
+  const closeMatchOverlay = () => {
+    setMatchPartner(null);
+  };
+
+  const handleStartChatting = () => {
+    // Assuming matches will have predictable matchIds, or we navigate to matches page 
+    // where they can click the specific match.
+    navigate("/gymbuddy/matches"); 
+  };
+
+  if (loading || fetching) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex flex-col items-center justify-center h-[70vh]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Finding workout partners near you...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex flex-col items-center justify-center h-[70vh] text-center p-4">
+          <p className="text-destructive mb-4">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background overflow-hidden flex flex-col">
+      <Header />
+      
+      <main className="flex-1 relative flex items-center justify-center p-4 pt-12">
+        {candidates.length > 0 ? (
+          <div className="relative w-full max-w-sm h-[600px] mx-auto">
+            {/* Render cards from back to front so top is last in DOM but visually top due to z-index */}
+            {candidates.slice(0, 3).reverse().map((candidate, arrayIndex, array) => {
+              const actualIndex = array.length - 1 - arrayIndex;
+              return (
+                <GymBuddyCard
+                  key={candidate.id}
+                  candidate={candidate}
+                  index={actualIndex}
+                  onSwipe={handleSwipe}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <GymBuddyEmpty />
+        )}
+      </main>
+
+      {matchPartner && profile && (
+        <GymBuddyMatchOverlay
+          currentUser={profile}
+          partner={matchPartner}
+          onClose={closeMatchOverlay}
+          onMessage={handleStartChatting}
+        />
+      )}
+    </div>
+  );
+}
