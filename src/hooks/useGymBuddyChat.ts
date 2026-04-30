@@ -46,7 +46,7 @@ export function useGymBuddyChat(matchId: string) {
         .single();
         
       if (partnerError) throw partnerError;
-      setPartner(partnerData);
+      setPartner(partnerData as GymBuddyProfile);
 
       // 2. Fetch messages
       const { data: messagesData, error: msgError } = await supabase
