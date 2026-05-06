@@ -5,23 +5,20 @@ import { z } from 'zod';
 
 // Input validation schemas
 export const signUpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   username: z.string()
     .trim()
     .min(3, 'Username must be at least 3 characters')
     .max(30, 'Username must be less than 30 characters')
     .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores and hyphens'),
-  phoneNumber: z.string()
-    .trim()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number must be less than 15 digits')
-    .regex(/^[0-9+\-\s]+$/, 'Phone number can only contain digits, +, -, and spaces'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .max(100, 'Password must be less than 100 characters')
 });
 
 export const signInSchema = z.object({
-  username: z.string().trim().min(1, 'Username is required'),
+  email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required')
 });
 
@@ -35,8 +32,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  signUp: (username: string, phoneNumber: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, fullName: string, username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: (guestName: string) => void;
   signOut: () => void;
   loading: boolean;
@@ -106,7 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser({
               id: profile.id,
               username: profile.username,
-              phoneNumber: profile.phone_number,
+              phoneNumber: profile.phone_number || '',
               isGuest: false,
             });
           }
@@ -127,19 +124,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (username: string, phoneNumber: string, password: string) => {
+  const signUp = async (email: string, fullName: string, username: string, password: string) => {
     try {
       // Validate inputs
-      const validation = signUpSchema.safeParse({ username, phoneNumber, password });
+      const validation = signUpSchema.safeParse({ email, fullName, username, password });
       if (!validation.success) {
         return { success: false, error: validation.error.errors[0].message };
       }
 
       const normalizedUsername = username.trim().toLowerCase();
-      const normalizedPhone = phoneNumber.trim();
-
-      // Create email from username for Supabase Auth
-      const email = `${normalizedUsername}@fitbox.app`;
 
       // Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -148,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         options: {
           data: {
             username: normalizedUsername,
-            phone_number: normalizedPhone
+            full_name: fullName
           }
         }
       });
@@ -200,16 +193,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signIn = async (username: string, password: string) => {
+  const signIn = async (email: string, password: string) => {
     try {
       // Validate inputs
-      const validation = signInSchema.safeParse({ username, password });
+      const validation = signInSchema.safeParse({ email, password });
       if (!validation.success) {
         return { success: false, error: validation.error.errors[0].message };
       }
-
-      const normalizedUsername = username.trim().toLowerCase();
-      const email = `${normalizedUsername}@fitbox.app`;
 
       // Sign in with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({

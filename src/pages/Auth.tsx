@@ -12,8 +12,8 @@ type AuthMode = 'welcome' | 'signup' | 'signin' | 'guest' | 'forgot' | 'otp';
 
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('welcome');
-  const [username, setUsername] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [guestName, setGuestName] = useState('');
   const [recoveryPhone, setRecoveryPhone] = useState('');
@@ -27,7 +27,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !phoneNumber.trim() || !password.trim()) {
+    if (!email.trim() || !fullName.trim() || !username.trim() || !password.trim()) {
       toast({
         title: 'Error',
         description: 'Please fill in all fields',
@@ -37,7 +37,7 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const result = await signUp(username.trim(), phoneNumber.trim(), password);
+    const result = await signUp(email.trim(), fullName.trim(), username.trim(), password);
     setLoading(false);
 
     if (result.success) {
@@ -45,7 +45,7 @@ const Auth = () => {
         title: 'Welcome to FitBox! 🎉',
         description: 'Your account has been created successfully.',
       });
-      navigate('/');
+      navigate('/dashboard');
     } else {
       toast({
         title: 'Error',
@@ -57,7 +57,7 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
         title: 'Error',
         description: 'Please fill in all fields',
@@ -67,7 +67,7 @@ const Auth = () => {
     }
 
     setLoading(true);
-    const result = await signIn(username.trim(), password);
+    const result = await signIn(email.trim(), password);
     setLoading(false);
 
     if (result.success) {
@@ -75,7 +75,7 @@ const Auth = () => {
         title: 'Welcome back!',
         description: `Signed in successfully`,
       });
-      navigate('/');
+      navigate('/dashboard');
     } else {
       toast({
         title: 'Error',
@@ -101,7 +101,7 @@ const Auth = () => {
       title: 'Welcome! 🎉',
       description: `Continuing as ${guestName}`,
     });
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (
@@ -158,6 +158,28 @@ const Auth = () => {
           {mode === 'signup' && (
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="signup-email">Email</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-fullname">Full Name</Label>
+                <Input
+                  id="signup-fullname"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="signup-username">Username</Label>
                 <Input
                   id="signup-username"
@@ -165,17 +187,6 @@ const Auth = () => {
                   placeholder="Choose a username (3-30 characters)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-phone">Phone Number</Label>
-                <Input
-                  id="signup-phone"
-                  type="tel"
-                  placeholder="e.g., +919876543210"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={loading}
                 />
               </div>
@@ -210,13 +221,13 @@ const Auth = () => {
           {mode === 'signin' && (
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="signin-username">Username</Label>
+                <Label htmlFor="signin-email">Email</Label>
                 <Input
-                  id="signin-username"
-                  type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="signin-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
                 />
               </div>
