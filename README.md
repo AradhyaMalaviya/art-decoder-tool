@@ -1,163 +1,107 @@
-# FitBox — Comprehensive AI Fitness & Nutrition Platform
+# FitBox — Premium AI-Powered Fitness & Social Hub
 
-**FitBox** is a full-stack, AI-powered fitness and nutrition web application designed to provide an immersive, personalized health and wellness experience. Built with React 18, TypeScript, and Vite, FitBox combines cutting-edge AI technologies — including Google Gemini 1.5 Flash for real-time conversational assistance and a custom NLP engine for local intent recognition — with a rich interactive front-end.
+**FitBox** is a high-end, full-stack fitness ecosystem that integrates professional coaching, social networking, and advanced data intelligence into a single, cohesive platform. Built for athletes and health enthusiasts, FitBox leverages a dual-AI architecture to provide both deep conversational coaching and instant, zero-latency exercise guidance.
 
-## Project info
-**URL**: https://lovable.dev/projects/12447993-e2b0-4dae-a52f-ceecc07f2345
+![FitBox Preview](public/preview.png)
 
-Changes made via Lovable will be committed automatically to this repo
+## 🌟 Core Pillars
 
----
+### 🤝 GymBuddy: The Social Layer
+*The ultimate social network for fitness — find your perfect training partner.*
+- **Smart Discovery**: Swipe-based matching engine to find local athletes with compatible goals and intensity.
+- **Direct Messaging**: Integrated real-time chat with instant notifications to coordinate training sessions.
+- **Social Accountability**: Built-in streak tracking and shared session logging to keep both partners motivated.
+- **Advanced Profiles**: Showcase your workout splits (PPL, Bro-Split, Upper/Lower) and gym locations.
 
-## 🌟 Key Features
+### 🤖 Intelligence Engine (Dual AI)
+- **Cloud Coach (Google Gemini 1.5 Flash)**: A specialized AI assistant running on Supabase Edge Functions. Expert in sports science, biomechanics, and evidence-based nutrition.
+- **Local Trainer (Custom NLP)**: A privacy-first, offline-capable NLP engine. Uses intent classification and cosine similarity for instantaneous exercise recommendations.
+- **Inspiration Algorithm**: A deterministic AI that analyzes physique presets (Thor, Goku, Toji) to derive personalized training focus.
 
-### 🤖 Dual AI Integration
-- **Cloud-Based AI Fitness Chat (Fitness Coach AI):** Powered by Google Gemini 1.5 Flash via a Supabase Edge Function (`fitness-chat`), providing real-time, streaming conversational assistance on fitness programming and nutrition. Supports markdown link rendering and inline URL detection.
-- **Local NLP Gym Trainer Chat:** A client-side, zero-latency chatbot operating entirely offline using intent classification and cosine similarity to provide instant exercise recommendations by muscle group and difficulty level. Features quick-action body-part buttons, bold text formatting, and a dedicated reset/restart flow.
-- **Inspiration-Based Physique Scoring:** An algorithm analyzing user-selected character presets (Goku, Thor, Captain America, etc.) to tailor workout and nutrition targets, with automatically generated training-focus tags and a numeric inspiration score.
+### 🏋️ The Interactive Lab
+- **SVG Anatomy Map**: A precision-engineered, interactive muscle diagram. Click any muscle group to explore targeted exercises with fluid animations.
+- **Pro Workout Tracker**: Real-time session interface with set-by-set logging, rest timers, and persistent cloud storage.
+- **Smart Generator**: A multi-step wizard that synthesizes custom routines based on difficulty, equipment, and target volume.
 
-### 🏋️ Interactive Workout Experience
-- **Interactive SVG Body Diagram:** A fully custom, anatomically accurate muscle map (`MuscleMapContainer`, `BodyDiagram`) providing click-to-explore access to exercises by body part.
-- **Exercise Directory:** Over 50+ exercises categorized across 6 muscle groups (Chest, Back, Legs, Arms, Shoulders, Core) and 3 difficulty levels, complete with video demonstrations, form instructions, equipment requirements, and duration estimates.
-- **Personalized Workout Generator:** A multi-step wizard (`GenerateWorkout`) that creates custom routines based on user-selected fitness level (Beginner / Intermediate / Advanced) and target muscle groups, with animated transitions and visual feedback.
-- **Real-Time Workout Tracker:** An active workout session page (`ActiveWorkout`) enabling users to monitor elapsed time, add exercises from a searchable drawer, log sets with reps/weights, and save completed workouts directly to Supabase via a dedicated `useWorkoutSave` hook. Includes finish-confirmation dialogs and completion stats.
-- **Exercise Detail Pages:** Individual exercise pages (`ExerciseDetail`) with comprehensive breakdowns including form cues, video embeds, and related exercises.
-
-### 🥗 Indian Nutrition Engine
-- **Algorithmic Nutrition Calculator:** Computes personalized calorie and macronutrient targets based on Mifflin-St Jeor BMR equations, adjusted for activity level (sedentary / moderate / active) and goal (bulk / lean-bulk / cut).
-- **Culturally Specific Diet Plans:** Features an extensive Indian food database (`indianFoodDatabase.ts`, 30 KB+) covering breakfast, main meals, snacks, pre-workout, post-workout, and rest-day foods — each with per-serving macros, calorie counts, diet type labels (veg / non-veg / vegan), and INR cost ranges.
-- **Nutrition Questionnaire:** A guided questionnaire (`NutritionQuestionnaire`) collecting gender, age, weight, height, goal, dietary preference, and activity level to generate a personalized roadmap.
-- **Nutrition Roadmap:** A comprehensive, tabbed nutrition plan (`NutritionRoadmap`) with:
-  - Sample bulking/cutting day plans with meal timing
-  - Pre-workout, post-workout, and rest-day food recommendations
-  - Hydration goals and supplement guidance (including desi alternatives like Sattu, coconut water, buttermilk)
-  - Protein-equivalent food swaps for budget and preference flexibility
-  - Downloadable PDF plan support
-- **Customizable Meal Roles:** Tailored suggestions for pre-workout, post-workout, rest days, breakfast, main meals, and snacks, with filtering for vegetarian, non-vegetarian, and vegan options.
-
-### 👤 User Capabilities & Onboarding
-- **5-Step Personalization Wizard:** Collects:
-  1. **Inspiration** — Upload up to 2 physique images or pick from character presets; auto-generates training focus tags and inspiration score
-  2. **Diet** — Choose dietary preference (Omnivore, Vegetarian, Vegan, Eggetarian, Pescatarian) and set optional calorie target
-  3. **Meals & Allergies** — Select meal routine (3 meals, 4–5 meals, or intermittent fasting with time-window), declare allergens with live parsing and common-allergen validation
-  4. **Workout Time** — Set preferred training time (Morning, Afternoon, Evening, Flexible) with optional time range
-  5. **Summary** — Full recap of all selections before submission, with visual tags and image preview
-- **Authentication:** Secure user sign-up/sign-in or guest access, managed via Supabase Auth with protected routes and session-based API authentication.
-- **Trainer Contact System:** A secure, dialog-based trainer contact feature (`TrainerContactButton`) that fetches contact details from a Supabase Edge Function (`get-trainer-contact`), with security logging and access control.
+### 🥗 Indian Nutrition Roadmap
+- **Precision Macros**: BMR and TDEE calculations using the Mifflin-St Jeor equation, tailored for Bulk, Lean Bulk, or Cut cycles.
+- **Culturally Specific DB**: 150+ item database of Indian foods, including desi supplement alternatives like Sattu and Buttermilk.
+- **Meal Timing Logic**: Smart roadmaps for Pre-Workout, Post-Workout, and Rest-Day nutrition.
 
 ---
 
 ## 🚀 Technology Stack
 
-| Layer                     | Technology                                        |
-| ------------------------- | ------------------------------------------------- |
-| **Frontend Framework**    | React 18 + TypeScript                             |
-| **Build Tool**            | Vite 5                                            |
-| **Styling**               | Tailwind CSS 3 + shadcn/ui (Radix UI primitives)  |
-| **State Management**      | React Context API (Auth, Workout contexts)        |
-| **Backend-as-a-Service**  | Supabase (PostgreSQL, Auth, Edge Functions)        |
-| **AI / LLM**              | Google Gemini 1.5 Flash (via Supabase Edge Fn)    |
-| **Data Fetching**         | TanStack React Query v5                           |
-| **Forms**                 | React Hook Form + Zod validation                  |
-| **Routing**               | React Router DOM v6                               |
-| **Charts**                | Recharts                                          |
-| **Icons**                 | Lucide React                                      |
-| **Notifications**         | Sonner + Radix Toast                              |
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React 18 + TypeScript + Vite 5 |
+| **Design** | Tailwind CSS 3 + shadcn/ui + Framer Motion |
+| **Backend** | Supabase (PostgreSQL, Auth, Edge Functions, RLS) |
+| **AI (Cloud)** | Google Gemini 1.5 Flash (Streaming SSE) |
+| **AI (Local)** | Custom NLP Engine (Intent Classification & Similarity) |
+| **Intelligence** | TanStack Query v5 + Zod + React Hook Form |
+| **Analytics** | Recharts (Progress Visualization) |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
-```
-art-decoder-tool/
-├── index.html                  # Entry HTML with OG/Twitter meta tags
+```bash
+fitbox/
 ├── src/
-│   ├── App.tsx                 # Root component with routing & auth
-│   ├── pages/
-│   │   ├── Index.tsx           # Home — Muscle map, feature cards, stats
-│   │   ├── Auth.tsx            # Sign-up / Sign-in
-│   │   ├── Onboarding.tsx      # 5-step personalization wizard
-│   │   ├── Exercises.tsx       # Exercise browsing by muscle group
-│   │   ├── ExerciseDetail.tsx  # Single exercise deep-dive
-│   │   ├── GenerateWorkout.tsx # Custom workout wizard
-│   │   ├── ActiveWorkout.tsx   # Live workout session tracker
-│   │   ├── Nutrition.tsx       # Nutrition hub
-│   │   ├── NutritionQuestionnaire.tsx
-│   │   ├── NutritionRoadmap.tsx
-│   │   └── NotFound.tsx
 │   ├── components/
-│   │   ├── FitnessChat.tsx     # Gemini-powered AI chat
-│   │   ├── GymTrainerChat.tsx  # Local NLP trainer chat
-│   │   ├── BodyDiagram.tsx     # SVG muscle diagram
-│   │   ├── MuscleMap.tsx       # Muscle map wrapper
-│   │   ├── ExerciseCard.tsx    # Exercise grid card
-│   │   ├── TrainerContactButton.tsx
-│   │   ├── muscle-map/        # Muscle-map sub-components
-│   │   ├── workout/           # Workout tracker sub-components
-│   │   └── ui/                # shadcn/ui primitives
-│   ├── contexts/               # AuthContext, WorkoutContext
-│   ├── data/
-│   │   ├── exercises.ts        # 50+ exercise definitions
-│   │   └── indianFoodDatabase.ts # Indian food DB (30 KB+)
-│   ├── hooks/                  # useWorkoutSave, useTrainerContact, etc.
-│   ├── integrations/           # Supabase client setup
-│   └── lib/                    # Utilities (onboarding helpers, cn, etc.)
+│   │   ├── gymbuddy/       # Social matching & matching UI
+│   │   ├── muscle-map/     # SVG interactive anatomy diagram
+│   │   ├── workout/        # Live session tracker components
+│   │   └── ui/             # shadcn/ui design system primitives
+│   ├── contexts/           # Auth, Workout, & Notification providers
+│   ├── hooks/              # useGymBuddy, useWorkoutSave, useTrainerContact
+│   ├── pages/
+│   │   ├── Index.tsx       # Main Dashboard
+│   │   ├── GymBuddy*.tsx   # Discover, Matches, & Chat
+│   │   ├── Nutrition*.tsx  # Questionnaire & Personalized Roadmaps
+│   │   └── ActiveWorkout.tsx # Live tracking interface
+│   ├── data/               # Local Exercise & Indian Food Databases
+│   └── lib/                # NLP engine, mapping, and core utilities
 ├── supabase/
-│   └── functions/
-│       ├── fitness-chat/       # Gemini streaming AI edge function
-│       └── get-trainer-contact/ # Trainer contact retrieval
-├── tailwind.config.ts
-├── vite.config.ts
-└── package.json
+│   └── functions/          # Gemini AI & Trainer Contact Edge Functions
+└── tailwind.config.ts      # Custom design tokens & theme
 ```
 
 ---
 
-## 💻 Getting Started
+## 💻 Installation
 
-### Prerequisites
-- **Node.js** v18+ and **npm**
-
-### Installation
-
-1. **Clone the repository and navigate into the project:**
+1. **Clone & Setup**
    ```bash
-   git clone <YOUR_GIT_URL>
-   cd <project_directory>
-   ```
-
-2. **Install dependencies:**
-   ```bash
+   git clone https://github.com/AaradhyaMalaviya/FitBox.git
+   cd fitbox
    npm install
    ```
 
-3. **Set up environment variables:**
-   Create or update the `.env` file in the project root with your Supabase credentials:
+2. **Environment Configuration**
+   Create a `.env` file in the root directory:
    ```env
-   VITE_SUPABASE_PROJECT_ID="..."
-   VITE_SUPABASE_PUBLISHABLE_KEY="..."
-   VITE_SUPABASE_URL="..."
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-4. **Start the local development server:**
+3. **Development**
    ```bash
    npm run dev
    ```
 
-5. **Build for production (optional):**
-   ```bash
-   npm run build
-   npm run preview
-   ```
-
 ---
 
-## 🌐 Deployment
+## ✍️ Author
 
-This application was scaffolded with [Lovable](https://lovable.dev). It can be seamlessly deployed using Lovable's one-click publish feature, or statically hosted on standard platforms (Vercel, Netlify, etc.). Custom domains are fully supported.
+**Aaradhya Malaviya**
+- Full-Stack Developer & Fitness Technology Architect
+- [GitHub](https://github.com/AaradhyaMalaviya)
+- [LinkedIn](https://linkedin.com/in/aaradhyamalaviya)
 
 ---
 
 ## 📄 License
 
-This project is proprietary. All rights reserved.
+Proprietary. © 2026 Aaradhya Malaviya. All rights reserved.
