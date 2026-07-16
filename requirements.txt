@@ -1,0 +1,8 @@
+# Python requirements for FitBox.
+#
+# No pip packages are required. This repository is a TypeScript React app built
+# with Vite and Supabase, so install project dependencies with npm instead:
+#
+#   npm install
+#
+# See requirements.md for the full dependency and runtime analysis.
