@@ -1,6 +1,9 @@
 const GOOGLE_MEASUREMENT_ID = "G-WVWXTCFVS2";
 
-const getPagePath = () => `${window.location.pathname}${window.location.search}`;
+const getPagePath = () =>
+  typeof window !== "undefined"
+    ? `${window.location.pathname}${window.location.search}`
+    : "";
 
 export const trackPageView = (pagePath = getPagePath()) => {
   if (typeof window === "undefined" || typeof window.gtag !== "function") {

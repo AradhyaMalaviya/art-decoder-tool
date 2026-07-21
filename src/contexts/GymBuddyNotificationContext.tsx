@@ -17,11 +17,15 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
   const [partnerProfiles, setPartnerProfiles] = useState<Record<string, GymBuddyProfile>>({});
 
   const fetchPartnerProfile = async (partnerId: string): Promise<GymBuddyProfile | null> => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('gymbuddy_profiles')
       .select('*')
       .eq('id', partnerId)
       .single();
+    if (error) {
+      console.error('Failed to fetch partner profile:', error.message);
+      return null;
+    }
     return data as GymBuddyProfile | null;
   };
 

@@ -71,7 +71,6 @@ export const EquipmentFilter = ({
               />
               <Icon className={`w-4 h-4 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
               <Label
-                htmlFor={equipment.id}
                 className={`text-sm cursor-pointer flex-1 ${
                   isSelected ? "text-foreground font-medium" : "text-muted-foreground"
                 }`}

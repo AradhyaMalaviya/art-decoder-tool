@@ -10,8 +10,7 @@ export const signUpSchema = z.object({
   username: z.string()
     .trim()
     .min(3, 'Username must be at least 3 characters')
-    .max(30, 'Username must be less than 30 characters')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores and hyphens'),
+    .max(30, 'Username must be less than 30 characters'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .max(100, 'Password must be less than 100 characters')
@@ -55,36 +54,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           // Fetch profile data
           setTimeout(async () => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('auth_user_id', session.user.id)
-              .single();
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('auth_user_id', session.user.id)
+                .single();
 
-            if (profile) {
-              setUser({
-                id: profile.id,
-                username: profile.username,
-                phoneNumber: profile.phone_number,
-                isGuest: false,
-              });
+              if (profile) {
+                setUser({
+                  id: profile.id,
+                  username: profile.username,
+                  phoneNumber: profile.phone_number,
+                  isGuest: false,
+                });
+              }
+            } finally {
+              setLoading(false);
             }
           }, 0);
         } else {
           // Check for guest user
           const storedUser = localStorage.getItem('fitBoxUser');
           if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            if (parsedUser.isGuest) {
-              setUser(parsedUser);
-            } else {
+            try {
+              const parsedUser = JSON.parse(storedUser);
+              if (parsedUser.isGuest) {
+                setUser(parsedUser);
+              } else {
+                localStorage.removeItem('fitBoxUser');
+              }
+            } catch {
               localStorage.removeItem('fitBoxUser');
             }
           } else {
             setUser(null);
           }
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -112,9 +119,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         const storedUser = localStorage.getItem('fitBoxUser');
         if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser.isGuest) {
-            setUser(parsedUser);
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.isGuest) {
+              setUser(parsedUser);
+            }
+          } catch {
+            localStorage.removeItem('fitBoxUser');
           }
         }
         setLoading(false);
@@ -149,6 +160,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (authError) {
         if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
           return { success: false, error: 'Username already taken. Please try a different one.' };
+        }
+        if (authError.message === 'Failed to fetch') {
+          return { success: false, error: 'Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.' };
         }
         throw authError;
       }
@@ -189,7 +203,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { success: true };
     } catch (error) {
       console.error('Signup error:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Failed to sign up' };
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign up';
+      if (errorMessage === 'Failed to fetch') {
+        return { success: false, error: 'Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.' };
+      }
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -214,6 +232,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (error.message.includes('Email not confirmed')) {
           return { success: false, error: 'Your account email has not been confirmed. Please contact support.' };
         }
+        if (error.message === 'Failed to fetch') {
+          return { success: false, error: 'Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.' };
+        }
         throw error;
       }
 
@@ -224,7 +245,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { success: true };
     } catch (error) {
       console.error('Signin error:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Failed to sign in' };
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
+      if (errorMessage === 'Failed to fetch') {
+        return { success: false, error: 'Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.' };
+      }
+      return { success: false, error: errorMessage };
     }
   };
 

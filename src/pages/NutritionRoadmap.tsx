@@ -136,7 +136,6 @@ const NutritionRoadmap = () => {
     );
   }
 
-  const isVeg = userData.dietaryPreference === "vegetarian" || userData.dietaryPreference === "vegan";
   const currentMealPlan = userData.goal === "bulk" || userData.goal === "lean-bulk" ? bulkingDayPlan : cuttingDayPlan;
 
   return (

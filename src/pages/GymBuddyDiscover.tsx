@@ -6,6 +6,7 @@ import { GymBuddyCandidate } from "@/lib/gymBuddyTypes";
 import { GymBuddyCard } from "@/components/gymbuddy/GymBuddyCard";
 import { GymBuddyEmpty } from "@/components/gymbuddy/GymBuddyEmpty";
 import { GymBuddyMatchOverlay } from "@/components/gymbuddy/GymBuddyMatchOverlay";
+import { GymBuddyRadar } from "@/components/gymbuddy/GymBuddyRadar";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -83,12 +84,17 @@ export default function GymBuddyDiscover() {
 
   if (loading || fetching) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-hidden flex flex-col">
         <Header />
-        <div className="flex flex-col items-center justify-center h-[70vh]">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Finding workout partners near you...</p>
-        </div>
+        <main className="flex-1 relative flex items-center justify-center p-4 pt-12">
+          <GymBuddyRadar 
+            profile={profile} 
+            isScanning={true}
+            onRadiusChange={(val) => {
+              console.log("Dynamic search radius adjusted:", val);
+            }}
+          />
+        </main>
       </div>
     );
   }

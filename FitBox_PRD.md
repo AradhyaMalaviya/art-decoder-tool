@@ -25,7 +25,8 @@
 
 ### Objective 2: Maximize Social-Driven Retention
 - **KR1**: Average "Shared Streak" length exceeding 4 weeks per match.
-- **KR2**: 40% of daily active users (DAU) interacting with the GymBuddy chat.
+- **KR2**: 40% of daily active users (DAU) interacting with the Gamified GymBuddy chat (via Live Session widgets and floating micro-reactions).
+- **KR3**: Increase daily swipe conversions by 25% through high-fidelity UI feedback (spring physics cards, Proximity Radar scanning).
 
 ### Objective 3: Performance Excellence
 - **KR1**: First-token delivery for AI chat under 1.5 seconds.
@@ -182,6 +183,13 @@ When a user swipes, candidates are ranked using the following weighted points sy
 - Matching Gym Location string: **10 Points**.
 - Same City (Keyword match): **5 Points**.
 
+## 8.a High-Fidelity Interaction Layer
+The GymBuddy module utilizes advanced web capabilities to create a premium, gamified experience:
+- **Proximity Radar Scanner**: Instead of static loading states, the app uses GPU-accelerated CSS keyframes to render a sweeping sonar radar (`GymBuddyRadar.tsx`) with interactive radius constraints (2km–30km).
+- **Synergy Visualization**: Tapping a match score triggers a glassmorphic drawer containing a Recharts `RadarChart` mapping the 5 dimensions of compatibility.
+- **Swipe Physics**: `framer-motion` dictates physical drag boundaries, velocity detection, and cubic-bezier spring returns for profile cards.
+- **Dopamine Match State**: Mutual matches trigger immediate browser haptic feedback (`navigator.vibrate`) and a `canvas-confetti` explosion.
+
 ---
 
 # VOLUME V: NUTRITION & BIOMETRICS
@@ -245,9 +253,10 @@ The full dataset (600+ lines) covers:
 FitBox is built on 70+ modular components.
 
 ### 12.1 The Social Module
-- **`GymBuddyCard`**: Handles swipe gestures and profile rendering.
-- **`GymBuddyChat`**: Real-time message list with sticky header.
-- **`MatchOverlay`**: High-priority modal for mutual likes.
+- **`GymBuddyRadar`**: High-performance CSS conic-sweep scanning interface with interactive radius control.
+- **`GymBuddyCard`**: Handles swipe gestures using `framer-motion` spring physics, and houses the Recharts Synergy Radar drawer.
+- **`GymBuddyChat`**: Real-time message list with sticky header, Live Session status widgets, and floating Emoji micro-reactions.
+- **`MatchOverlay`**: High-priority modal for mutual likes featuring `canvas-confetti` and `navigator.vibrate` haptic triggers.
 
 ### 12.2 The Training Module
 - **`WorkoutLogCard`**: Manages the input for weight/reps for a specific set.

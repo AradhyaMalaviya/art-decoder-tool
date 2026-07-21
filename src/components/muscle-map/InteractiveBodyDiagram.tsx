@@ -322,6 +322,13 @@ export const InteractiveBodyDiagram = () => {
     animRef.current = requestAnimationFrame(update);
   }, [displayCount]);
 
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, []);
+
   // Handlers
   const handleMouseEnter = useCallback((e: React.MouseEvent, muscleId: string) => {
     const data = muscleData[muscleId];

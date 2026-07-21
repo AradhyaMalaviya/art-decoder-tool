@@ -45,10 +45,13 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Timer logic
+  const isWorkoutActive = !!activeWorkout;
+  const workoutStartedAt = activeWorkout?.startedAt;
+
   useEffect(() => {
-    if (activeWorkout) {
+    if (isWorkoutActive && workoutStartedAt) {
       timerRef.current = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - activeWorkout.startedAt.getTime()) / 1000);
+        const elapsed = Math.floor((Date.now() - workoutStartedAt.getTime()) / 1000);
         setElapsedSeconds(elapsed);
       }, 1000);
     } else {
@@ -64,7 +67,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         clearInterval(timerRef.current);
       }
     };
-  }, [activeWorkout, activeWorkout?.startedAt]);
+  }, [isWorkoutActive, workoutStartedAt]);
 
   const startWorkout = useCallback((name: string) => {
     setActiveWorkout({

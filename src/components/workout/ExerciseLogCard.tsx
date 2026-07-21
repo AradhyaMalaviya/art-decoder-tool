@@ -105,7 +105,7 @@ const SetRow = ({ set, onRemove, onUpdate, canRemove }: SetRowProps) => {
         type="number"
         min="0"
         step="0.5"
-        value={set.weight || ''}
+        value={set.weight ?? ''}
         onChange={(e) => onUpdate({ weight: parseFloat(e.target.value) || 0 })}
         placeholder="0"
         className={cn(
@@ -118,7 +118,7 @@ const SetRow = ({ set, onRemove, onUpdate, canRemove }: SetRowProps) => {
       <Input
         type="number"
         min="0"
-        value={set.reps || ''}
+        value={set.reps ?? ''}
         onChange={(e) => onUpdate({ reps: parseInt(e.target.value) || 0 })}
         placeholder="0"
         className={cn(

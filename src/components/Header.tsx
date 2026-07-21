@@ -10,12 +10,20 @@ export const Header = () => {
   const { toast } = useToast();
 
   const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: 'Signed out',
-      description: 'Come back soon!',
-    });
-    navigate('/auth');
+    try {
+      await signOut();
+      toast({
+        title: 'Signed out',
+        description: 'Come back soon!',
+      });
+      navigate('/auth');
+    } catch (error) {
+      toast({
+        title: 'Sign out failed',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (!user) return null;

@@ -112,6 +112,7 @@ export default function GymBuddyProfileSetup() {
       // Validating age ranges
       if (values.age_range_min > values.age_range_max) {
         form.setError("age_range_max", { message: "Max age must be greater than min age" });
+        setIsSubmitting(false);
         return;
       }
       

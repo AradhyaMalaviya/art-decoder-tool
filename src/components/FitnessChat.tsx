@@ -207,7 +207,31 @@ export const FitnessChat = () => {
       });
       
       if (lastIndex < content.length) {
-        parts.push(content.substring(lastIndex));
+        // Also check remaining text for plain URLs
+        const remainingText = content.substring(lastIndex);
+        const remainingUrlMatches = Array.from(remainingText.matchAll(urlRegex));
+        if (remainingUrlMatches.length > 0) {
+          let remainingLastIndex = 0;
+          remainingUrlMatches.forEach((match, i) => {
+            const url = match[0];
+            const index = match.index!;
+            if (index > remainingLastIndex) {
+              parts.push(remainingText.substring(remainingLastIndex, index));
+            }
+            parts.push(
+              <a key={`url-${msgIdx}-${i}`} href={url} target="_blank" rel="noopener noreferrer"
+                className="font-bold text-primary hover:text-primary/80 transition-all duration-300 underline decoration-2 underline-offset-2 inline-block mx-1">
+                🔗 {url}
+              </a>
+            );
+            remainingLastIndex = index + url.length;
+          });
+          if (remainingLastIndex < remainingText.length) {
+            parts.push(remainingText.substring(remainingLastIndex));
+          }
+        } else {
+          parts.push(remainingText);
+        }
       }
       
       return <>{parts}</>;

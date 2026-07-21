@@ -143,6 +143,7 @@ export const MUSCLE_MAPPINGS: Record<string, MuscleMapping> = {
  * @returns The corresponding exercise muscle group, or null if not found
  */
 export function getExerciseGroupFromDiagramId(diagramId: string): string | null {
+  if (!diagramId) return null;
   const mapping = MUSCLE_MAPPINGS[diagramId.toLowerCase()];
   return mapping ? mapping.exerciseGroup : null;
 }
@@ -153,6 +154,7 @@ export function getExerciseGroupFromDiagramId(diagramId: string): string | null 
  * @returns The display name, or the original ID if not found
  */
 export function getDisplayNameFromDiagramId(diagramId: string): string {
+  if (!diagramId) return diagramId;
   const mapping = MUSCLE_MAPPINGS[diagramId.toLowerCase()];
   return mapping ? mapping.displayName : diagramId;
 }
@@ -163,6 +165,7 @@ export function getDisplayNameFromDiagramId(diagramId: string): string {
  * @returns The route path (e.g., "/exercises/chest")
  */
 export function getMuscleRoute(diagramId: string): string {
+  if (!diagramId) return '/exercises';
   const normalizedId = diagramId.toLowerCase();
   return `/exercises/${normalizedId}`;
 }
@@ -173,5 +176,6 @@ export function getMuscleRoute(diagramId: string): string {
  * @returns True if the muscle has exercises, false otherwise
  */
 export function hasExercises(diagramId: string): boolean {
+  if (!diagramId) return false;
   return getExerciseGroupFromDiagramId(diagramId) !== null;
 }

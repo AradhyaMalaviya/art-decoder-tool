@@ -14,6 +14,7 @@ const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('welcome');
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [guestName, setGuestName] = useState('');
   const [recoveryPhone, setRecoveryPhone] = useState('');

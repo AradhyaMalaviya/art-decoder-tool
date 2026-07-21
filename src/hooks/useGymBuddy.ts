@@ -50,7 +50,11 @@ export function useGymBuddy() {
       setProfile(data as GymBuddyProfile);
       return data;
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      if (msg === 'Failed to fetch') {
+         throw new Error("Network Error: Cannot connect to Supabase. Your project might be paused or blocked by Brave Shields.");
+      }
       throw err;
     }
   };
@@ -76,8 +80,7 @@ export function useGymBuddy() {
         .neq('id', user.id);
         
       if (swipedIds.length > 0) {
-        // Can't use `.not('id', 'in', `(${swipedIds.join(',')})`)` easily, better to filter client side or use a stored procedure.
-        // Doing simple client side filtering for now since the dataset might be small, but let's try the filter format:
+        // PostgREST expects parenthesized, comma-separated values for the `not.in` filter
         query = query.not('id', 'in', `(${swipedIds.join(',')})`);
       }
 
@@ -85,8 +88,13 @@ export function useGymBuddy() {
 
       if (error) throw error;
 
+      // Client-side fallback filter in case DB filter didn't work as expected
+      const filteredCandidates = (candidates as GymBuddyProfile[]).filter(
+        c => !swipedIds.includes(c.id)
+      );
+
       // 3. Calculate compatibility scores
-      const scoredCandidates = (candidates as GymBuddyProfile[]).map(candidate => {
+      const scoredCandidates = filteredCandidates.map(candidate => {
         const { score, compatibilityLabel } = calculateCompatibilityScore(profile, candidate);
         return {
           ...candidate,
@@ -154,6 +162,10 @@ export function useGymBuddy() {
       return { match: false };
     } catch (err: unknown) {
       console.error('Error swiping:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg === 'Failed to fetch') {
+         throw new Error("Network Error: Cannot connect to Supabase.");
+      }
       throw err;
     }
   };

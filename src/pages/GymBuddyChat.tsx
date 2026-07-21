@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, ArrowLeft, Check, CheckCheck, Target } from "lucide-react";
+import { Loader2, Send, ArrowLeft, Check, CheckCheck, Target, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { WorkoutStreak } from "@/components/gymbuddy/WorkoutStreak";
 import { GymBuddySessionModal } from "@/components/gymbuddy/GymBuddySessionModal";
@@ -18,6 +18,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GymBuddyChat() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -29,7 +30,10 @@ export default function GymBuddyChat() {
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
+  const [floatingEmojis, setFloatingEmojis] = useState<{id: number, emoji: string}[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const QUICK_REACTIONS = ["🔥", "💪", "👑", "⚡"];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -58,6 +62,22 @@ export default function GymBuddyChat() {
     }
   };
 
+  const handleQuickReaction = async (emoji: string) => {
+    // Show local floating animation
+    const id = Date.now() + Math.random();
+    setFloatingEmojis(prev => [...prev, { id, emoji }]);
+    setTimeout(() => {
+      setFloatingEmojis(prev => prev.filter(e => e.id !== id));
+    }, 2000);
+
+    // Send as message
+    try {
+      await sendMessage(emoji);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (loading || !partner) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
@@ -69,8 +89,11 @@ export default function GymBuddyChat() {
     );
   }
 
+  // Simulated live workout status
+  const isLiveWorkout = Math.random() > 0.5; // Simulate 50% chance they are working out for demo
+
   return (
-    <div className="flex flex-col min-h-screen bg-background h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background h-screen overflow-hidden relative">
       <Header />
       
       {/* Chat Header */}
@@ -116,12 +139,48 @@ export default function GymBuddyChat() {
         </Sheet>
       </div>
 
+      {/* Live Session Widget */}
+      {isLiveWorkout && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center justify-between z-10 shadow-sm animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            </span>
+            <span className="text-xs font-semibold text-primary">{partner.display_name} is crushing {partner.workout_split} at the gym right now!</span>
+          </div>
+          <Activity className="w-4 h-4 text-primary animate-pulse" />
+        </div>
+      )}
+
       <GymBuddySessionModal
         isOpen={sessionModalOpen}
         onClose={() => setSessionModalOpen(false)}
         matchId={matchId!}
         partnerName={partner.display_name}
       />
+
+      {/* Floating Emojis Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <AnimatePresence>
+          {floatingEmojis.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ y: "80vh", x: "50%", opacity: 1, scale: 0.5 }}
+              animate={{ 
+                y: "20vh", 
+                x: `calc(50% + ${(Math.random() - 0.5) * 100}px)`,
+                opacity: 0,
+                scale: 2 
+              }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="absolute text-5xl"
+            >
+              {item.emoji}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
@@ -139,6 +198,8 @@ export default function GymBuddyChat() {
             const showTime = index === 0 || 
               new Date(msg.sent_at!).getTime() - new Date(messages[index - 1].sent_at!).getTime() > 5 * 60 * 1000;
               
+            const isEmojiOnly = QUICK_REACTIONS.includes(msg.content);
+
             return (
               <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                 {showTime && (
@@ -154,14 +215,14 @@ export default function GymBuddyChat() {
                     </Avatar>
                   )}
                   <div 
-                    className={`rounded-2xl px-4 py-2 text-sm shadow-sm ${
-                      isMe 
+                    className={`${isEmojiOnly ? 'text-4xl bg-transparent shadow-none' : 'rounded-2xl px-4 py-2 text-sm shadow-sm'} ${
+                      !isEmojiOnly && isMe 
                         ? 'bg-primary text-primary-foreground rounded-br-sm' 
-                        : 'bg-card text-card-foreground border rounded-bl-sm'
+                        : !isEmojiOnly ? 'bg-card text-card-foreground border rounded-bl-sm' : ''
                     }`}
                   >
                     {msg.content}
-                    {isMe && (
+                    {isMe && !isEmojiOnly && (
                       <span className="ml-2 inline-flex items-center align-middle opacity-70">
                         {msg.is_read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />}
                       </span>
@@ -176,7 +237,20 @@ export default function GymBuddyChat() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-background border-t">
+      <div className="p-4 bg-background border-t space-y-3">
+        {/* Quick Reactions Bar */}
+        <div className="flex gap-4 justify-center items-center">
+          {QUICK_REACTIONS.map(emoji => (
+            <button
+              key={emoji}
+              onClick={() => handleQuickReaction(emoji)}
+              className="text-2xl hover:scale-125 transition-transform active:scale-95"
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+        
         <form onSubmit={handleSend} className="flex gap-2 max-w-4xl mx-auto">
           <Input
             value={inputValue}
