@@ -1,5 +1,5 @@
 # FitBox Mega-PRD (Technical & Product Bible)
-## Professional Edition — v1.0.0 (May 2026)
+## Professional Edition — v1.1.0 (August 2026)
 
 ---
 
@@ -39,11 +39,11 @@
 ## 4. Dual-AI Architecture
 FitBox operates on a "Hybrid-Intelligence" model, balancing the deep reasoning of cloud models with the speed of local processing.
 
-### 4.1 Cloud Coach: Google Gemini 1.5 Flash
-- **Deployment**: Supabase Edge Functions (Deno).
+### 4.1 Cloud Coach: Google Gemini 1.5 Flash (via Lovable AI Gateway)
+- **Deployment**: Supabase Edge Functions (Deno runtime).
 - **Communication Protocol**: Server-Sent Events (SSE) for real-time token streaming.
 - **Role**: Complex workout programming, macro-nutrient science, and long-form motivational coaching.
-- **Security**: Key-vaulted API access (`LOVABLE_API_KEY`) via Lovable AI gateway with request rate-limiting.
+- **Security & Gateway**: Key-vaulted API access (`LOVABLE_API_KEY`) via `https://ai.gateway.lovable.dev/v1/chat/completions` with server-side rate-limiting.
 
 ### 4.2 Local Trainer: Custom NLP Engine
 - **Logic**: Client-side JavaScript executing Term-Frequency Inverse Document Frequency (TF-IDF) principles.
@@ -56,26 +56,32 @@ FitBox operates on a "Hybrid-Intelligence" model, balancing the deep reasoning o
 - **Performance**: $O(1)$ intent lookup after initial vectorization.
 
 ## 5. State Management & Data Flow
-FitBox employs a multi-tiered state architecture to ensure data persistence and UI responsiveness.
+FitBox employs a multi-tiered state architecture to ensure data persistence, UI responsiveness, and strict schema compliance.
 
 ### 5.1 Server State (TanStack Query)
 - **Caching**: 5-minute cache for static datasets (Exercises, Food).
 - **Invalidation**: Instant invalidation on "Match" or "Message" events.
 - **Optimistic Updates**: Applied to "Message Sent" and "Set Logged" actions for zero-perceived latency.
 
-### 5.2 Global UI State (React Context)
-- **`AuthContext`**: Manages Supabase Auth sessions, guest-session hydration from `localStorage`, and profile state.
+### 5.2 Global UI State & Dual-Identity Architecture (React Context)
+- **`AuthContext`**: Manages Supabase Auth sessions, guest-session hydration, and profile state.
+  - **Dual-Identity Architecture**: Exposes both `authUserId` (`session.user.id` targeting `auth.users`) and `profileId` (`public.profiles.id` targeting `public.profiles`).
+  - **Runtime Assertions**: Includes development environment (`import.meta.env.DEV`) sanity checks to ensure schema target compliance across the application.
 - **`WorkoutContext`**: A dedicated provider for the "Active Session," tracking timers, set logs, and current exercise focus.
-- **`GymBuddyNotificationContext`**: Subscribes to the `gymbuddy_messages` table via WebSockets to provide global toast notifications.
+- **`GymBuddyNotificationContext`**: Subscribes to the `gymbuddy_messages` table via WebSockets (targeting `authUserId`) to provide global toast notifications.
 
 ---
 
 # VOLUME III: DATABASE & SECURITY ENCYCLOPEDIA
 
-## 6. Complete Database Schema (DDL Reference)
-The following SQL definitions represent the authoritative source of truth for the FitBox data model.
+## 6. Complete Database Schema & Foreign Key Targets
+The FitBox data model relies on clear distinction between authentication identity (`auth.users`) and application profile identity (`public.profiles`).
 
-### 6.1 GymBuddy Social Core
+### 6.1 Database Foreign Key Target Mapping
+- **Workout Log Tables** (`workout_sessions`, `workouts`, `workout_exercises`, `workout_sets`): Target `public.profiles(id)` (`profileId`).
+- **GymBuddy Social Tables** (`gymbuddy_profiles`, `gymbuddy_swipes`, `gymbuddy_matches`, `gymbuddy_messages`, `gymbuddy_session_logs`): Target `auth.users(id)` (`authUserId`).
+
+### 6.2 GymBuddy Social Core DDL
 ```sql
 -- Create GymBuddy Profiles Table
 CREATE TABLE gymbuddy_profiles (
@@ -120,7 +126,7 @@ CREATE TABLE gymbuddy_matches (
 );
 ```
 
-### 6.2 Communication & Logging
+### 6.3 Communication & Logging
 ```sql
 -- Create GymBuddy Messages Table
 CREATE TABLE gymbuddy_messages (
@@ -171,8 +177,9 @@ When a user swipes, candidates are ranked using the following weighted points sy
 - Far Levels (e.g., Beginner/Advanced): **0 Points**.
 
 ### 8.3 Split Synergy (20 Points)
-- Exact Match (PPL/PPL): **20 Points**.
-- Full Body Versatility: **15 Points** (if either user is "Flexible").
+- Strict union type alignment with `WorkoutSplit` (`'push_pull_legs'`, `'full_body'`, `'upper_lower'`, `'bro_split'`, `'athletic'`, `'cardio_focused'`).
+- Exact Match (`push_pull_legs`/`push_pull_legs`): **20 Points**.
+- Full Body / Versatile: **15 Points**.
 - Complete Mismatch: **0 Points**.
 
 ### 8.4 Timing Synchronization (20 Points)
@@ -183,9 +190,11 @@ When a user swipes, candidates are ranked using the following weighted points sy
 - Matching Gym Location string: **10 Points**.
 - Same City (Keyword match): **5 Points**.
 
-## 8.a High-Fidelity Interaction Layer
-The GymBuddy module utilizes advanced web capabilities to create a premium, gamified experience:
-- **Proximity Radar Scanner**: Instead of static loading states, the app uses GPU-accelerated CSS keyframes to render a sweeping sonar radar (`GymBuddyRadar.tsx`) with interactive radius constraints (2km–30km).
+## 8.a High-Fidelity Interaction & Component Isolation
+The GymBuddy module utilizes advanced web capabilities and strict file modularization:
+- **Proximity Radar Scanner**: `GymBuddyRadar.tsx` renders a sweeping conic-sonar radar with hoisted constant arrays (`SCANNING_PHASES`) and interactive radius constraints (2km–30km).
+- **Extracted UI Variants**: Component variants are isolated into sibling helper modules (`badge-variants.ts`, `button-variants.ts`, `navigation-menu-variants.ts`, `sidebar-variants.ts`, `toggle-variants.ts`) to maintain 100% React Fast Refresh compliance.
+- **Authentication Schemas**: Extracted `signUpSchema` and `signInSchema` into [`src/lib/authSchemas.ts`](file:///C:/Users/deepa/Downloads/musclewebsite%20test%202/art-decoder-tool/src/lib/authSchemas.ts).
 - **Synergy Visualization**: Tapping a match score triggers a glassmorphic drawer containing a Recharts `RadarChart` mapping the 5 dimensions of compatibility.
 - **Swipe Physics**: `framer-motion` dictates physical drag boundaries, velocity detection, and cubic-bezier spring returns for profile cards.
 - **Dopamine Match State**: Mutual matches trigger immediate browser haptic feedback (`navigator.vibrate`) and a `canvas-confetti` explosion.
@@ -250,21 +259,22 @@ The full dataset (600+ lines) covers:
 # VOLUME VII: COMPONENT ENCYCLOPEDIA
 
 ## 12. Component Registry (Core UI)
-FitBox is built on 70+ modular components.
+FitBox is built on 70+ modular components and isolated route controllers.
 
 ### 12.1 The Social Module
 - **`GymBuddyRadar`**: High-performance CSS conic-sweep scanning interface with interactive radius control.
-- **`GymBuddyCard`**: Handles swipe gestures using `framer-motion` spring physics, and houses the Recharts Synergy Radar drawer.
+- **`GymBuddyCard`**: Handles swipe gestures using `framer-motion` spring physics, housing the Recharts Synergy Radar drawer.
 - **`GymBuddyChat`**: Real-time message list with sticky header, Live Session status widgets, and floating Emoji micro-reactions.
 - **`MatchOverlay`**: High-priority modal for mutual likes featuring `canvas-confetti` and `navigator.vibrate` haptic triggers.
 
-### 12.2 The Training Module
-- **`WorkoutLogCard`**: Manages the input for weight/reps for a specific set.
-- **`ExerciseDrawer`**: An overlay allowing exercise discovery during an active session.
+### 12.2 The Training & Routing Module
+- **Direct Route Controllers**: Post-workout completions in `ActiveWorkout.tsx` and `GenerateWorkout.tsx` redirect directly to `/dashboard`.
+- **`WorkoutLogCard`**: Manages input for weight/reps for specific sets.
+- **`ExerciseDrawer`**: An overlay allowing exercise discovery during active sessions.
 - **`AnatomyMap`**: The SVG-driven interactive body visualizer.
 
 ### 12.3 The Nutrition Module
-- **`MacroPieChart`**: Visual representation of the day's targets.
+- **`MacroPieChart`**: Visual representation of daily macro targets.
 - **`FoodSwapCard`**: Comparison UI for vegetarian protein alternatives.
 
 ---
