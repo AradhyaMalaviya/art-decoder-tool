@@ -32,7 +32,9 @@ import { Loader2, Settings, UserX, Edit } from "lucide-react";
 
 export function GymBuddySettings() {
   const { profile, loading, saveProfile, refreshProfile } = useGymBuddy();
-  const { user } = useAuth();
+  const { user, authUserId } = useAuth();
+  const activeAuthUserId = authUserId || user?.authUserId || user?.id;
+
   const [isDiscoverable, setIsDiscoverable] = useState(true);
   const [visibility, setVisibility] = useState("public");
   const [isSaving, setIsSaving] = useState(false);
@@ -70,13 +72,13 @@ export function GymBuddySettings() {
   };
 
   const handleDeleteProfile = async () => {
-    if (!user) return;
+    if (!activeAuthUserId) return;
     try {
       setIsDeleting(true);
       const { error } = await supabase
         .from('gymbuddy_profiles')
         .delete()
-        .eq('id', user.id);
+        .eq('id', activeAuthUserId);
         
       if (error) throw error;
       
@@ -86,7 +88,7 @@ export function GymBuddySettings() {
       });
       
       await refreshProfile();
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: unknown) {
       toast({
         title: "Error deleting profile",

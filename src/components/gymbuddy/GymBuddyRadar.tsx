@@ -24,22 +24,22 @@ const SIMULATED_TARGETS = [
   { id: 8, x: 10, y: 45, name: "Ishaan", split: "Flexible Split", dist: "18.5 km", gender: "male" },
 ];
 
+// Dynamic phase messages to simulate smart intelligence filtering (hoisted to module scope)
+const SCANNING_PHASES = [
+  "Pulsating sonar locator online...",
+  "Scanning nearby gym locations...",
+  "Comparing training times & splits...",
+  "Filtering by target experience level...",
+  "Calculating Mifflin calorie goals synergy...",
+  "Connecting real-time match streams...",
+];
+
 export function GymBuddyRadar({ profile, onRadiusChange, isScanning = true }: GymBuddyRadarProps) {
   const [radius, setRadius] = useState<number>(5);
   const [activeStep, setActiveStep] = useState<string>("Initializing secure radar sweep...");
   const [visibleTargets, setVisibleTargets] = useState(SIMULATED_TARGETS.slice(0, 4));
   const [hoveredTarget, setHoveredTarget] = useState<typeof SIMULATED_TARGETS[0] | null>(null);
   const [scanPing, setScanPing] = useState<boolean>(false);
-
-  // Dynamic phase messages to simulate smart intelligence filtering
-  const SCANNING_PHASES = [
-    "Pulsating sonar locator online...",
-    "Scanning nearby gym locations...",
-    "Comparing training times & splits...",
-    "Filtering by target experience level...",
-    "Calculating Mifflin calorie goals synergy...",
-    "Connecting real-time match streams...",
-  ];
 
   useEffect(() => {
     if (!isScanning) {

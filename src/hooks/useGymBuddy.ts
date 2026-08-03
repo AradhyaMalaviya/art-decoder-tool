@@ -5,13 +5,15 @@ import { GymBuddyProfile, GymBuddyCandidate } from '@/lib/gymBuddyTypes';
 import { calculateCompatibilityScore } from '@/lib/compatibilityScore';
 
 export function useGymBuddy() {
-  const { user } = useAuth();
+  const { user, authUserId } = useAuth();
+  const effectiveUserId = authUserId || user?.authUserId || user?.id;
+
   const [profile, setProfile] = useState<GymBuddyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
-    if (!user) {
+    if (!effectiveUserId) {
       setLoading(false);
       return;
     }
@@ -20,7 +22,7 @@ export function useGymBuddy() {
       const { data, error } = await supabase
         .from('gymbuddy_profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', effectiveUserId)
         .maybeSingle();
 
       if (error) throw error;
@@ -30,19 +32,19 @@ export function useGymBuddy() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
 
   const saveProfile = async (updates: Partial<GymBuddyProfile>) => {
-    if (!user) throw new Error('No user found');
+    if (!effectiveUserId) throw new Error('No authenticated user found');
     try {
       const { data, error } = await supabase
         .from('gymbuddy_profiles')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .upsert({ id: user.id, ...updates } as any)
+        .upsert({ id: effectiveUserId, ...updates } as any)
         .select()
         .single();
 
@@ -60,27 +62,25 @@ export function useGymBuddy() {
   };
 
   const getCandidates = async (): Promise<GymBuddyCandidate[]> => {
-    if (!user || !profile) return [];
+    if (!effectiveUserId || !profile) return [];
     
     try {
       // 1. Get IDs of users we've already swiped on
       const { data: swipes } = await supabase
         .from('gymbuddy_swipes')
         .select('target_id')
-        .eq('swiper_id', user.id);
+        .eq('swiper_id', effectiveUserId);
         
       const swipedIds = swipes?.map(s => s.target_id) || [];
       
       // 2. Fetch profiles of discoverable users, excluding self and already swiped
-      // Since supabase doesn't support 'not in' with empty arrays, we handle it conditionally
       let query = supabase
         .from('gymbuddy_profiles')
         .select('*')
         .eq('is_discoverable', true)
-        .neq('id', user.id);
+        .neq('id', effectiveUserId);
         
       if (swipedIds.length > 0) {
-        // PostgREST expects parenthesized, comma-separated values for the `not.in` filter
         query = query.not('id', 'in', `(${swipedIds.join(',')})`);
       }
 
@@ -114,14 +114,14 @@ export function useGymBuddy() {
   };
 
   const swipe = async (targetId: string, direction: 'right' | 'left'): Promise<{ match: boolean }> => {
-    if (!user) throw new Error('No user found');
+    if (!effectiveUserId) throw new Error('No authenticated user found');
     
     try {
       // 1. Record the swipe
       const { error: swipeError } = await supabase
         .from('gymbuddy_swipes')
         .insert({
-          swiper_id: user.id,
+          swiper_id: effectiveUserId,
           target_id: targetId,
           direction
         });
@@ -134,14 +134,14 @@ export function useGymBuddy() {
           .from('gymbuddy_swipes')
           .select('*')
           .eq('swiper_id', targetId)
-          .eq('target_id', user.id)
+          .eq('target_id', effectiveUserId)
           .eq('direction', 'right')
           .maybeSingle();
 
         if (mutualSwipe) {
           // It's a match!
-          const user1_id = user.id < targetId ? user.id : targetId;
-          const user2_id = user.id < targetId ? targetId : user.id;
+          const user1_id = effectiveUserId < targetId ? effectiveUserId : targetId;
+          const user2_id = effectiveUserId < targetId ? targetId : effectiveUserId;
 
           const { error: matchError } = await supabase
             .from('gymbuddy_matches')
@@ -151,7 +151,7 @@ export function useGymBuddy() {
               shared_streak: 0
             });
 
-          if (matchError && matchError.code !== '23505') { // Ignore unique violation if it already exists
+          if (matchError && matchError.code !== '23505') {
             throw matchError;
           }
           

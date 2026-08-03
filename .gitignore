@@ -30,3 +30,8 @@ dist-ssr
 # Build cache
 *.tsbuildinfo
 
+# Zip archives
+*.zip
+new_one.zip
+
+

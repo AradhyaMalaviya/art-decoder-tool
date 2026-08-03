@@ -193,7 +193,7 @@ fitbox/
    ```
    In the Supabase Edge Function secrets dashboard, set:
    ```
-   GEMINI_API_KEY=your_google_gemini_api_key
+   LOVABLE_API_KEY=your_lovable_api_key
    ```
 
 3. **Database Setup**

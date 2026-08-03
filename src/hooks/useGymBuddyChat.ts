@@ -4,7 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { GymBuddyMessage, GymBuddyMatch, GymBuddyProfile } from '@/lib/gymBuddyTypes';
 
 export function useGymBuddyChat(matchId: string) {
-  const { user } = useAuth();
+  const { user, authUserId } = useAuth();
+  const activeAuthUserId = authUserId || user?.authUserId || user?.id;
+
   const [messages, setMessages] = useState<GymBuddyMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [partner, setPartner] = useState<GymBuddyProfile | null>(null);
@@ -23,7 +25,7 @@ export function useGymBuddyChat(matchId: string) {
   }, []);
 
   const fetchChatData = useCallback(async () => {
-    if (!user || !matchId) return;
+    if (!activeAuthUserId || !matchId) return;
 
     setLoading(true);
     try {
@@ -37,7 +39,7 @@ export function useGymBuddyChat(matchId: string) {
       if (matchError) throw matchError;
       setMatchDetails(matchData);
 
-      const partnerId = matchData.user1_id === user.id ? matchData.user2_id : matchData.user1_id;
+      const partnerId = matchData.user1_id === activeAuthUserId ? matchData.user2_id : matchData.user1_id;
       
       const { data: partnerData, error: partnerError } = await supabase
         .from('gymbuddy_profiles')
@@ -60,12 +62,11 @@ export function useGymBuddyChat(matchId: string) {
 
       // 3. Mark unread messages from partner as read
       const unreadFromPartner = messagesData
-        .filter(m => m.sender_id !== user.id && !m.is_read)
+        .filter(m => m.sender_id !== activeAuthUserId && !m.is_read)
         .map(m => m.id);
 
       if (unreadFromPartner.length > 0) {
         await markMessagesAsRead(unreadFromPartner);
-        // Optimistically update local state
         setMessages(prev => prev.map(m => 
           unreadFromPartner.includes(m.id) ? { ...m, is_read: true } : m
         ));
@@ -76,7 +77,7 @@ export function useGymBuddyChat(matchId: string) {
     } finally {
       setLoading(false);
     }
-  }, [user, matchId, markMessagesAsRead]);
+  }, [activeAuthUserId, matchId, markMessagesAsRead]);
 
   useEffect(() => {
     fetchChatData();
@@ -84,7 +85,7 @@ export function useGymBuddyChat(matchId: string) {
 
   // Realtime subscription
   useEffect(() => {
-    if (!matchId || !user) return;
+    if (!matchId || !activeAuthUserId) return;
 
     const channel = supabase
       .channel(`gymbuddy_chat_${matchId}`)
@@ -94,13 +95,11 @@ export function useGymBuddyChat(matchId: string) {
         (payload) => {
           const newMsg = payload.new as GymBuddyMessage;
           setMessages(prev => {
-            // Avoid duplicates in case of optimistic UI updates
             if (prev.some(m => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
 
-          // If message is from partner, mark it as read immediately
-          if (newMsg.sender_id !== user.id && !newMsg.is_read) {
+          if (newMsg.sender_id !== activeAuthUserId && !newMsg.is_read) {
             markMessagesAsRead([newMsg.id]);
           }
         }
@@ -118,26 +117,23 @@ export function useGymBuddyChat(matchId: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [matchId, user, markMessagesAsRead]);
+  }, [matchId, activeAuthUserId, markMessagesAsRead]);
 
   const sendMessage = async (content: string) => {
-    if (!user || !matchId || !content.trim()) return;
+    if (!activeAuthUserId || !matchId || !content.trim()) return;
 
     try {
       const { data, error } = await supabase
         .from('gymbuddy_messages')
         .insert({
           match_id: matchId,
-          sender_id: user.id,
+          sender_id: activeAuthUserId,
           content: content.trim()
         })
         .select()
         .single();
 
       if (error) throw error;
-      // We don't need to manually update state here because the realtime subscription 
-      // will catch the INSERT event, but we can do it optimistically if we want.
-      // Leaving it to realtime is safer to prevent duplicates.
       return data;
     } catch (err) {
       console.error('Failed to send message:', err);

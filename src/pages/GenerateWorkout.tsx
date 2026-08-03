@@ -97,7 +97,7 @@ const GenerateWorkout = () => {
               <Button 
                 variant="outline"
                 size="lg"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/dashboard')}
                 className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground px-8 py-6 text-lg font-semibold"
               >
                 Back to Home

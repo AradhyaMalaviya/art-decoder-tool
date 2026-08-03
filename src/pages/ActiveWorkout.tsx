@@ -64,7 +64,7 @@ const ActiveWorkoutContent = () => {
           description: `Saved ${result.exerciseCount} exercises with ${result.setCount} sets.`,
         });
         endWorkout();
-        navigate('/');
+        navigate('/dashboard');
       },
       onError: (error) => {
         toast({

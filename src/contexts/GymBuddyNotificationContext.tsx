@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useState, useCallback } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +9,9 @@ import { GymBuddyMatch, GymBuddyProfile } from '@/lib/gymBuddyTypes';
 export const GymBuddyNotificationContext = createContext({});
 
 export function GymBuddyNotificationProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, authUserId } = useAuth();
+  const activeAuthUserId = authUserId || user?.authUserId || user?.id;
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,18 +34,18 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
 
   // Initial load
   useEffect(() => {
-    if (!user) return;
+    if (!activeAuthUserId) return;
     
     const loadInitialData = async () => {
       const { data: matchData } = await supabase
         .from('gymbuddy_matches')
         .select('*')
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+        .or(`user1_id.eq.${activeAuthUserId},user2_id.eq.${activeAuthUserId}`);
         
       if (matchData && matchData.length > 0) {
         setMatches(matchData);
         
-        const pIds = matchData.map(m => m.user1_id === user.id ? m.user2_id : m.user1_id);
+        const pIds = matchData.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
         const { data: profiles } = await supabase
           .from('gymbuddy_profiles')
           .select('*')
@@ -57,22 +60,21 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
     };
     
     loadInitialData();
-  }, [user]);
+  }, [activeAuthUserId]);
 
   // Match listeners
   useEffect(() => {
-    if (!user) return;
+    if (!activeAuthUserId) return;
 
     const handleNewMatch = async (payload: Record<string, unknown>) => {
       const newMatch = payload.new as GymBuddyMatch;
       
-      // Avoid duplicates if we already have it
       setMatches(prev => {
         if (prev.some(m => m.id === newMatch.id)) return prev;
         return [...prev, newMatch];
       });
 
-      const partnerId = newMatch.user1_id === user.id ? newMatch.user2_id : newMatch.user1_id;
+      const partnerId = newMatch.user1_id === activeAuthUserId ? newMatch.user2_id : newMatch.user1_id;
       const partner = await fetchPartnerProfile(partnerId);
       
       if (partner) {
@@ -90,37 +92,35 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
     };
 
     const matchChannel1 = supabase.channel('matches_user1')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_matches', filter: `user1_id=eq.${user.id}` }, handleNewMatch)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_matches', filter: `user1_id=eq.${activeAuthUserId}` }, handleNewMatch)
       .subscribe();
       
     const matchChannel2 = supabase.channel('matches_user2')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_matches', filter: `user2_id=eq.${user.id}` }, handleNewMatch)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_matches', filter: `user2_id=eq.${activeAuthUserId}` }, handleNewMatch)
       .subscribe();
 
     return () => {
       supabase.removeChannel(matchChannel1);
       supabase.removeChannel(matchChannel2);
     };
-  }, [user, navigate, toast]);
+  }, [activeAuthUserId, navigate, toast]);
 
-  // Messages and Logs listeners (dependent on matches)
+  // Messages and Logs listeners
   useEffect(() => {
-    if (!user || matches.length === 0) return;
+    if (!activeAuthUserId || matches.length === 0) return;
 
     const matchIds = matches.map(m => m.id);
-    // Realtime filter string for 'in'
     const filterStr = `match_id=in.(${matchIds.join(',')})`;
 
     const channel = supabase.channel('gymbuddy_activity')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_messages', filter: filterStr }, (payload) => {
         const msg = payload.new;
-        if (msg.sender_id !== user.id) {
-          // If we are currently in this chat, don't show toast
+        if (msg.sender_id !== activeAuthUserId) {
           if (location.pathname === `/gymbuddy/chat/${msg.match_id}`) return;
           
           const match = matches.find(m => m.id === msg.match_id);
           if (match) {
-            const partnerId = match.user1_id === user.id ? match.user2_id : match.user1_id;
+            const partnerId = match.user1_id === activeAuthUserId ? match.user2_id : match.user1_id;
             const partnerName = partnerProfiles[partnerId]?.display_name || 'A partner';
             
             toast({
@@ -137,10 +137,10 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gymbuddy_session_logs', filter: filterStr }, (payload) => {
         const log = payload.new;
-        if (log.logged_by !== user.id) {
+        if (log.logged_by !== activeAuthUserId) {
           const match = matches.find(m => m.id === log.match_id);
           if (match) {
-            const partnerId = match.user1_id === user.id ? match.user2_id : match.user1_id;
+            const partnerId = match.user1_id === activeAuthUserId ? match.user2_id : match.user1_id;
             const partnerName = partnerProfiles[partnerId]?.display_name || 'A partner';
             
             toast({
@@ -156,20 +156,13 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
         }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'gymbuddy_matches', filter: `id=in.(${matchIds.join(',')})` }, (payload) => {
-         // Streak milestone check
          const oldMatch = payload.old as GymBuddyMatch;
          const newMatch = payload.new as GymBuddyMatch;
          
-         // In a real app we'd compare the derived streak, but since we update last_session_logged 
-         // we might just catch it here if we also explicitly track streak changes.
-         // Alternatively, we skip real-time milestone toasts and show them when loading the match.
-         // But the requirements asked for: "A streak milestone is hit ("🔥 You and [Name] hit a 4-week streak!")"
-         // If we added a shared_streak column update, we can detect it.
-         // For now, if the shared_streak increments to a milestone:
          if (newMatch.shared_streak > (oldMatch.shared_streak || 0)) {
            const s = newMatch.shared_streak;
            if (s === 4 || s === 12 || s === 26) {
-             const partnerId = newMatch.user1_id === user.id ? newMatch.user2_id : newMatch.user1_id;
+             const partnerId = newMatch.user1_id === activeAuthUserId ? newMatch.user2_id : newMatch.user1_id;
              const partnerName = partnerProfiles[partnerId]?.display_name || 'your partner';
              toast({
                title: "🔥 Streak Milestone!",
@@ -183,7 +176,7 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, matches, partnerProfiles, location.pathname, navigate, toast]);
+  }, [activeAuthUserId, matches, partnerProfiles, location.pathname, navigate, toast]);
 
   return (
     <GymBuddyNotificationContext.Provider value={{}}>
@@ -191,3 +184,7 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
     </GymBuddyNotificationContext.Provider>
   );
 }
+
+export const useGymBuddyNotifications = () => {
+  return useContext(GymBuddyNotificationContext);
+};

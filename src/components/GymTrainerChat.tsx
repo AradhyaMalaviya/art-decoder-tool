@@ -412,7 +412,7 @@ What do you want to know?`;
                             className="flex-1 bg-card border-border focus:ring-primary"
                         />
                         <Button
-                            onClick={sendMessage}
+                            onClick={() => sendMessage()}
                             disabled={isLoading || !input.trim()}
                             size="icon"
                             className="bg-primary hover:bg-primary/90"

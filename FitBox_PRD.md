@@ -43,7 +43,7 @@ FitBox operates on a "Hybrid-Intelligence" model, balancing the deep reasoning o
 - **Deployment**: Supabase Edge Functions (Deno).
 - **Communication Protocol**: Server-Sent Events (SSE) for real-time token streaming.
 - **Role**: Complex workout programming, macro-nutrient science, and long-form motivational coaching.
-- **Security**: Key-vaulted API access with request rate-limiting.
+- **Security**: Key-vaulted API access (`LOVABLE_API_KEY`) via Lovable AI gateway with request rate-limiting.
 
 ### 4.2 Local Trainer: Custom NLP Engine
 - **Logic**: Client-side JavaScript executing Term-Frequency Inverse Document Frequency (TF-IDF) principles.

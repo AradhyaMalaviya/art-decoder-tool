@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { useGymBuddy } from "@/hooks/useGymBuddy";
@@ -7,7 +7,6 @@ import { GymBuddyCard } from "@/components/gymbuddy/GymBuddyCard";
 import { GymBuddyEmpty } from "@/components/gymbuddy/GymBuddyEmpty";
 import { GymBuddyMatchOverlay } from "@/components/gymbuddy/GymBuddyMatchOverlay";
 import { GymBuddyRadar } from "@/components/gymbuddy/GymBuddyRadar";
-import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function GymBuddyDiscover() {
@@ -29,13 +28,7 @@ export default function GymBuddyDiscover() {
     }
   }, [loading, profile, navigate, toast]);
 
-  useEffect(() => {
-    if (profile) {
-      loadCandidates();
-    }
-  }, [profile]);
-
-  const loadCandidates = async () => {
+  const loadCandidates = useCallback(async () => {
     setFetching(true);
     try {
       const results = await getCandidates();
@@ -49,7 +42,13 @@ export default function GymBuddyDiscover() {
     } finally {
       setFetching(false);
     }
-  };
+  }, [getCandidates, toast]);
+
+  useEffect(() => {
+    if (profile) {
+      loadCandidates();
+    }
+  }, [profile, loadCandidates]);
 
   const handleSwipe = async (direction: 'left' | 'right', candidateId: string) => {
     const swipedCandidate = candidates.find(c => c.id === candidateId);
@@ -68,7 +67,6 @@ export default function GymBuddyDiscover() {
         description: err instanceof Error ? err.message : String(err),
         variant: "destructive"
       });
-      // In a robust app, we might add them back to the stack here
     }
   };
 
@@ -77,8 +75,6 @@ export default function GymBuddyDiscover() {
   };
 
   const handleStartChatting = () => {
-    // Assuming matches will have predictable matchIds, or we navigate to matches page 
-    // where they can click the specific match.
     navigate("/gymbuddy/matches"); 
   };
 

@@ -69,7 +69,7 @@ export function GymBuddyCard({ candidate, index, onSwipe }: GymBuddyCardProps) {
   // Radar Data
   const radarData = [
     { subject: 'Goals', A: 80, fullMark: 100 },
-    { subject: 'Split', A: candidate.workout_split === 'ppl' ? 90 : 60, fullMark: 100 },
+    { subject: 'Split', A: candidate.workout_split === 'push_pull_legs' ? 90 : 60, fullMark: 100 },
     { subject: 'Timing', A: 85, fullMark: 100 },
     { subject: 'Location', A: 70, fullMark: 100 },
     { subject: 'Exp', A: 75, fullMark: 100 },

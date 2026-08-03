@@ -201,6 +201,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Intentional co-location of Provider and Hook
 export const useWorkout = () => {
   const context = useContext(WorkoutContext);
   if (context === undefined) {

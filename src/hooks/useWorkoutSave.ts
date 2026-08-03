@@ -10,30 +10,21 @@ interface SaveWorkoutResult {
 }
 
 export const useWorkoutSave = () => {
-  const { user } = useAuth();
+  const { user, profileId } = useAuth();
 
   return useMutation({
     mutationFn: async (workout: ActiveWorkout): Promise<SaveWorkoutResult> => {
-      if (!user) {
-        throw new Error('User not authenticated');
+      const activeProfileId = profileId || user?.profileId || user?.id;
+
+      if (!activeProfileId || activeProfileId === 'guest') {
+        throw new Error('User not authenticated or in guest mode');
       }
 
-      // Get the user's profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('auth_user_id', user.id)
-        .maybeSingle();
-
-      if (profileError || !profile) {
-        throw new Error('Could not find user profile');
-      }
-
-      // 1. Create the workout session
+      // 1. Create the workout session using profileId (FK target for workout_sessions.user_id)
       const { data: session, error: sessionError } = await supabase
         .from('workout_sessions')
         .insert({
-          user_id: profile.id,
+          user_id: activeProfileId,
           name: workout.name,
           started_at: workout.startedAt.toISOString(),
           ended_at: new Date().toISOString(),

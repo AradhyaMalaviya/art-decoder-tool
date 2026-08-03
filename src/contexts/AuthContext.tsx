@@ -1,28 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
-import { z } from 'zod';
-
-// Input validation schemas
-export const signUpSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  username: z.string()
-    .trim()
-    .min(3, 'Username must be at least 3 characters')
-    .max(30, 'Username must be less than 30 characters'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(100, 'Password must be less than 100 characters')
-});
-
-export const signInSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required')
-});
+import { signUpSchema, signInSchema } from '@/lib/authSchemas';
 
 interface User {
-  id: string;
+  id: string; // Same as profileId for backwards compatibility
+  profileId: string;
+  authUserId: string;
   username: string;
   phoneNumber: string;
   isGuest: boolean;
@@ -31,6 +15,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  authUserId: string | null;
+  profileId: string | null;
   signUp: (email: string, fullName: string, username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: (guestName: string) => void;
@@ -48,26 +34,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
+      async (event, currentSession) => {
+        setSession(currentSession);
         
-        if (session?.user) {
+        if (currentSession?.user) {
           // Fetch profile data
           setTimeout(async () => {
             try {
               const { data: profile } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('auth_user_id', session.user.id)
+                .eq('auth_user_id', currentSession.user.id)
                 .single();
 
               if (profile) {
-                setUser({
+                const newUser: User = {
                   id: profile.id,
+                  profileId: profile.id,
+                  authUserId: currentSession.user.id,
                   username: profile.username,
                   phoneNumber: profile.phone_number,
                   isGuest: false,
-                });
+                };
+                setUser(newUser);
+
+                if (import.meta.env.DEV && profile.id === currentSession.user.id) {
+                  console.warn(
+                    '[AuthContext Dev Check] profile.id matches auth_user_id exactly. If schema has separate UUIDs, confirm ID mapping.'
+                  );
+                }
               }
             } finally {
               setLoading(false);
@@ -80,7 +75,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
               const parsedUser = JSON.parse(storedUser);
               if (parsedUser.isGuest) {
-                setUser(parsedUser);
+                setUser({
+                  ...parsedUser,
+                  profileId: parsedUser.profileId || 'guest',
+                  authUserId: parsedUser.authUserId || 'guest',
+                });
               } else {
                 localStorage.removeItem('fitBoxUser');
               }
@@ -96,19 +95,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      if (existingSession?.user) {
         setTimeout(async () => {
           const { data: profile } = await supabase
             .from('profiles')
             .select('*')
-            .eq('auth_user_id', session.user.id)
+            .eq('auth_user_id', existingSession.user.id)
             .single();
 
           if (profile) {
             setUser({
               id: profile.id,
+              profileId: profile.id,
+              authUserId: existingSession.user.id,
               username: profile.username,
               phoneNumber: profile.phone_number || '',
               isGuest: false,
@@ -122,7 +123,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           try {
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser.isGuest) {
-              setUser(parsedUser);
+              setUser({
+                ...parsedUser,
+                profileId: parsedUser.profileId || 'guest',
+                authUserId: parsedUser.authUserId || 'guest',
+              });
             }
           } catch {
             localStorage.removeItem('fitBoxUser');
@@ -181,21 +186,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: true };
       }
 
-      // If no session but user was created, try to sign in immediately
-      // This handles the case where email confirmation might be enabled
-      // but we want seamless signup since we use fake emails
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        // If sign-in fails after signup, the account was still created
-        // Common case: email confirmation is required
         if (signInError.message.includes('Email not confirmed')) {
           return { success: false, error: 'Account created but email confirmation is required. Please contact support or ask the administrator to disable email confirmation in Supabase.' };
         }
-        // Still return success since the account was created
         console.warn('Auto sign-in after signup failed:', signInError.message);
         return { success: true };
       }
@@ -256,6 +255,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const continueAsGuest = (guestName: string) => {
     const guestUser: User = {
       id: 'guest',
+      profileId: 'guest',
+      authUserId: 'guest',
       username: guestName,
       phoneNumber: '',
       isGuest: true,
@@ -272,13 +273,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('fitBoxUser');
   };
 
+  const authUserId = session?.user?.id || (user?.isGuest ? 'guest' : user?.authUserId || null);
+  const profileId = user?.profileId || null;
+
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, continueAsGuest, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, authUserId, profileId, signUp, signIn, continueAsGuest, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Intentional co-location of Provider and Hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

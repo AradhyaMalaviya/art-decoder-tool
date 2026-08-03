@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Header } from "@/components/Header";
@@ -19,20 +19,21 @@ type MatchWithPartner = GymBuddyMatch & {
 };
 
 export default function GymBuddyMatches() {
-  const { user } = useAuth();
+  const { user, authUserId } = useAuth();
+  const activeAuthUserId = authUserId || user?.authUserId || user?.id;
+
   const [matches, setMatches] = useState<MatchWithPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionModal, setSessionModal] = useState({ isOpen: false, matchId: "", partnerName: "" });
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      loadMatches();
+  const loadMatches = useCallback(async () => {
+    if (!activeAuthUserId) {
+      setLoading(false);
+      return;
     }
-  }, [user]);
 
-  const loadMatches = async () => {
     try {
       setLoading(true);
 
@@ -40,7 +41,7 @@ export default function GymBuddyMatches() {
       const { data: matchData, error: matchError } = await supabase
         .from('gymbuddy_matches')
         .select('*')
-        .or(`user1_id.eq.${user?.id},user2_id.eq.${user?.id}`)
+        .or(`user1_id.eq.${activeAuthUserId},user2_id.eq.${activeAuthUserId}`)
         .order('matched_at', { ascending: false });
 
       if (matchError) throw matchError;
@@ -51,7 +52,7 @@ export default function GymBuddyMatches() {
       }
 
       // 2. Extract partner IDs
-      const partnerIds = matchData.map(m => m.user1_id === user?.id ? m.user2_id : m.user1_id);
+      const partnerIds = matchData.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
 
       // 3. Fetch partner profiles
       const { data: profileData, error: profileError } = await supabase
@@ -65,14 +66,14 @@ export default function GymBuddyMatches() {
       const { data: messageData, error: messageError } = await supabase
         .from('gymbuddy_messages')
         .select('match_id')
-        .neq('sender_id', user?.id)
+        .neq('sender_id', activeAuthUserId)
         .eq('is_read', false);
 
       if (messageError) throw messageError;
 
       // 5. Combine data
       const combined = matchData.map(match => {
-        const partnerId = match.user1_id === user?.id ? match.user2_id : match.user1_id;
+        const partnerId = match.user1_id === activeAuthUserId ? match.user2_id : match.user1_id;
         const partner = profileData?.find(p => p.id === partnerId);
         const unreadCount = messageData?.filter(m => m.match_id === match.id).length || 0;
         
@@ -81,7 +82,7 @@ export default function GymBuddyMatches() {
           partner,
           unreadCount
         } as MatchWithPartner;
-      }).filter(m => m.partner); // Only keep if partner profile exists
+      }).filter(m => m.partner);
 
       setMatches(combined);
     } catch (error: unknown) {
@@ -93,7 +94,13 @@ export default function GymBuddyMatches() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeAuthUserId, toast]);
+
+  useEffect(() => {
+    if (activeAuthUserId) {
+      loadMatches();
+    }
+  }, [activeAuthUserId, loadMatches]);
 
   if (loading) {
     return (
