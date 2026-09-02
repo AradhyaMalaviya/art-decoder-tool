@@ -315,6 +315,7 @@ export type Database = {
           created_at: string
           id: string
           phone_number: string
+          preferences: Json | null
           username: string
         }
         Insert: {
@@ -322,6 +323,7 @@ export type Database = {
           created_at?: string
           id: string
           phone_number: string
+          preferences?: Json | null
           username: string
         }
         Update: {
@@ -329,6 +331,7 @@ export type Database = {
           created_at?: string
           id?: string
           phone_number?: string
+          preferences?: Json | null
           username?: string
         }
         Relationships: []
