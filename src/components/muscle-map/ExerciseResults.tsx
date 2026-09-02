@@ -1,10 +1,11 @@
 import { ExerciseResultCard } from "./ExerciseResultCard";
 import { exercises, type Exercise } from "@/data/exercises";
-import { Search, Target, Dumbbell } from "lucide-react";
+import { Search, Target, Dumbbell, PlayCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { ExerciseVideoPlayer } from "@/components/exercise/ExerciseVideoPlayer";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface ExerciseResultsProps {
   selectedMuscle: string | null;
@@ -123,13 +124,26 @@ export const ExerciseResults = ({
           
           {selectedExercise && (
             <div className="space-y-4">
-              {/* Video */}
+              {/* Video — wrapped in ErrorBoundary so a media failure can never crash the whole modal */}
               {selectedExercise.video && (
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                  <ExerciseVideoPlayer
-                    exercise={selectedExercise}
-                    className="h-full w-full object-cover"
-                  />
+                  <ErrorBoundary
+                    fallback={
+                      <div
+                        className="flex h-full w-full flex-col items-center justify-center bg-muted p-4 text-center text-muted-foreground"
+                        role="img"
+                        aria-label="Video preview unavailable"
+                      >
+                        <PlayCircle className="mb-2 h-10 w-10 opacity-50" />
+                        <p className="text-xs font-medium">Video preview unavailable</p>
+                      </div>
+                    }
+                  >
+                    <ExerciseVideoPlayer
+                      exercise={selectedExercise}
+                      className="h-full w-full object-cover"
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
 
