@@ -7,6 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import {
   INSPIRATION_PRESETS,
   COMMON_ALLERGENS,
@@ -204,27 +206,40 @@ const Onboarding = () => {
         createdAt: now,
       };
 
-      const res = await fetch("/api/onboarding/preferences", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to save preferences");
+      // Always keep a local copy so the wizard result survives even if the
+      // user is a guest or the network write fails.
+      try {
+        localStorage.setItem("fitbox:onboarding", JSON.stringify(payload));
+      } catch (storageErr) {
+        console.warn("Could not persist preferences to localStorage:", storageErr);
       }
 
-      const data = await res.json();
+      if (user && !user.isGuest) {
+        // Logged-in user: persist to the profile row.
+        // `preferences` is typed as `Json` (a recursive union) in Database, but our
+        // `UserPreferencePayload` is a plain interface with named keys. JSON-wise
+        // the payload is valid; cast at the boundary so the typed client accepts it.
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ preferences: payload as unknown as Database["public"]["Tables"]["profiles"]["Update"]["preferences"] })
+          .eq("auth_user_id", user.authUserId);
+
+        if (updateError) {
+          throw new Error(updateError.message);
+        }
+      }
+
       setSubmitSuccess(
         "Nice. Plan saved. Time to actually lift something heavier than your phone. 🏋️‍♂️"
       );
-      console.log("Onboarding saved", data, { inspirationScore });
+      console.log("Onboarding saved", payload, { inspirationScore });
     } catch (error) {
       console.error(error);
-      setSubmitError(error instanceof Error ? error.message : "Something went wrong saving your preferences.");
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong saving your preferences."
+      );
     } finally {
       setSubmitting(false);
     }
