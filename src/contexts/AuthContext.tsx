@@ -19,6 +19,7 @@ interface AuthContextType {
   profileId: string | null;
   signUp: (email: string, fullName: string, username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   continueAsGuest: (guestName: string) => void;
   signOut: () => void;
   loading: boolean;
@@ -252,6 +253,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      // redirectTo must match a configured Supabase redirect URL.
+      // The email link brings the user back to /auth where they can sign in
+      // with the new password they set via Supabase's hosted reset page.
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      if (error) {
+        if (error.message === "Failed to fetch") {
+          return {
+            success: false,
+            error:
+              "Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.",
+          };
+        }
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send reset email";
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const continueAsGuest = (guestName: string) => {
     const guestUser: User = {
       id: 'guest',
@@ -277,7 +304,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const profileId = user?.profileId || null;
 
   return (
-    <AuthContext.Provider value={{ user, session, authUserId, profileId, signUp, signIn, continueAsGuest, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, authUserId, profileId, signUp, signIn, resetPassword, continueAsGuest, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );
