@@ -165,7 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (authError) {
         if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
-          return { success: false, error: 'Username already taken. Please try a different one.' };
+          return { success: false, error: 'An account with that email already exists. Please sign in or use a different email.' };
         }
         if (authError.message === 'Failed to fetch') {
           return { success: false, error: 'Network Error: Cannot connect to Supabase. Your project might be paused due to inactivity, or an adblocker (like Brave Shields) is blocking the request. Please check your Supabase dashboard to unpause it.' };
@@ -179,7 +179,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Check for fake signup (user already exists but Supabase returns user with empty identities)
       if (authData.user.identities && authData.user.identities.length === 0) {
-        return { success: false, error: 'Username already taken. Please try a different one.' };
+        return { success: false, error: 'An account with that email already exists. Please sign in or use a different email.' };
       }
 
       // If session was returned, user is auto-signed in (email confirmation disabled)

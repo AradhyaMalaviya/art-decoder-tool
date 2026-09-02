@@ -23,22 +23,6 @@ export const ExerciseVideoPlayer = ({
   const [showPoster, setShowPoster] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  if (hasError) {
-    return (
-      <div
-        className="flex h-full w-full flex-col items-center justify-center bg-muted p-4 text-center text-muted-foreground"
-        role="img"
-        aria-label="Video preview unavailable"
-      >
-        <PlayCircle className="mb-2 h-10 w-10 opacity-50" />
-        <p className="text-xs font-medium">Video preview unavailable</p>
-        <p className="mt-1 text-[11px] opacity-70">
-          Check your connection or try a different exercise.
-        </p>
-      </div>
-    );
-  }
-
   useEffect(() => {
     setShowPoster(true);
   }, [exercise.poster, exercise.video]);
@@ -62,6 +46,22 @@ export const ExerciseVideoPlayer = ({
       video.currentTime = 0;
     };
   }, [exercise.video, autoPlay, muted]);
+
+  if (hasError) {
+    return (
+      <div
+        className="flex h-full w-full flex-col items-center justify-center bg-muted p-4 text-center text-muted-foreground"
+        role="img"
+        aria-label="Video preview unavailable"
+      >
+        <PlayCircle className="mb-2 h-10 w-10 opacity-50" />
+        <p className="text-xs font-medium">Video preview unavailable</p>
+        <p className="mt-1 text-[11px] opacity-70">
+          Check your connection or try a different exercise.
+        </p>
+      </div>
+    );
+  }
 
   if (!exercise.video) {
     return null;
