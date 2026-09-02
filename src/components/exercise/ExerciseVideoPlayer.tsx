@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Exercise } from "@/data/exercises";
 import { ExercisePoster } from "@/components/exercise/ExercisePoster";
@@ -23,7 +24,19 @@ export const ExerciseVideoPlayer = ({
   const [hasError, setHasError] = useState(false);
 
   if (hasError) {
-    throw new Error("Media failed to load");
+    return (
+      <div
+        className="flex h-full w-full flex-col items-center justify-center bg-muted p-4 text-center text-muted-foreground"
+        role="img"
+        aria-label="Video preview unavailable"
+      >
+        <PlayCircle className="mb-2 h-10 w-10 opacity-50" />
+        <p className="text-xs font-medium">Video preview unavailable</p>
+        <p className="mt-1 text-[11px] opacity-70">
+          Check your connection or try a different exercise.
+        </p>
+      </div>
+    );
   }
 
   useEffect(() => {
