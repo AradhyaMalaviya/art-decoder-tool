@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.get-trainer-contact]
 verify_jwt = true
+
+[functions.project-assistant]
+verify_jwt = true

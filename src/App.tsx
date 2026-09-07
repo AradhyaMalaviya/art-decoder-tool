@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { GymBuddyNotificationProvider } from "@/contexts/GymBuddyNotificationContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ProjectAssistantChat } from "@/components/ProjectAssistantChat";
 
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Index = lazy(() => import("./pages/Index"));
@@ -101,6 +102,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+              {/* Global project-aware assistant (free Gemini direct, bottom-left) */}
+              <ProjectAssistantChat />
             </ErrorBoundary>
           </GymBuddyNotificationProvider>
         </AuthProvider>

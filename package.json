@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "upload:exercise-media": "node scripts/upload-exercise-media.mjs"
+    "upload:exercise-media": "node scripts/upload-exercise-media.mjs",
+    "build:knowledge": "node scripts/build-project-knowledge.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
