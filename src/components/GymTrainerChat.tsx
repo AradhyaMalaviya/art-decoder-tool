@@ -5,73 +5,42 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Send, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { exercises } from "@/data/exercises";
+import { supabasePublishableKey, supabaseUrl } from "@/lib/env";
 
 type Message = { role: "user" | "assistant"; content: string };
 
-// Get exercise recommendations based on body part
-const getExercisesForBodyPart = (bodyPart: string) => {
-    const normalizedPart = bodyPart.toLowerCase();
-
-    // Map common terms to muscle groups
-    const muscleGroupMap: Record<string, string> = {
-        'chest': 'Chest',
-        'back': 'Back',
-        'legs': 'Legs',
-        'leg': 'Legs',
-        'arms': 'Arms',
-        'arm': 'Arms',
-        'bicep': 'Arms',
-        'biceps': 'Arms',
-        'tricep': 'Arms',
-        'triceps': 'Arms',
-        'shoulders': 'Shoulders',
-        'shoulder': 'Shoulders',
-        'core': 'Core',
-        'abs': 'Core',
-        'abdominals': 'Core',
-    };
-
-    const muscleGroup = Object.keys(muscleGroupMap).find(key =>
-        normalizedPart.includes(key)
-    );
-
-    if (muscleGroup) {
-        const targetGroup = muscleGroupMap[muscleGroup];
-        return exercises.filter(e => e.muscleGroup === targetGroup);
-    }
-
-    return [];
+// Build a compact summary of the FitBox exercise library so the model can
+// ground its recommendations in exercises that actually exist in the app.
+const getExerciseSummary = () => {
+    const muscleGroups = [...new Set(exercises.map(e => e.muscleGroup))];
+    return muscleGroups.map(group => {
+        const groupExercises = exercises.filter(e => e.muscleGroup === group);
+        const byDifficulty = {
+            Beginner: groupExercises.filter(e => e.difficulty === 'Beginner').map(e => e.name),
+            Intermediate: groupExercises.filter(e => e.difficulty === 'Intermediate').map(e => e.name),
+            Advanced: groupExercises.filter(e => e.difficulty === 'Advanced').map(e => e.name),
+        };
+        return `${group}: Beginner[${byDifficulty.Beginner.join(', ')}], Intermediate[${byDifficulty.Intermediate.join(', ')}], Advanced[${byDifficulty.Advanced.join(', ')}]`;
+    }).join('\n');
 };
 
-// Format exercises for display
-const formatExerciseList = (exerciseList: typeof exercises, difficulty?: string) => {
-    let filtered = exerciseList;
-    if (difficulty) {
-        filtered = exerciseList.filter(e =>
-            e.difficulty.toLowerCase() === difficulty.toLowerCase()
-        );
-    }
-
-    return filtered.slice(0, 5).map(e =>
-        `• **${e.name}** (${e.difficulty}) - ${e.duration}, Equipment: ${e.equipment}`
-    ).join('\n');
-};
+const WELCOME_MESSAGE =
+    "Hey there, champ! 💪 I'm your personal gym trainer — backed by FitBox's exercise library. Tell me what body part you want to hit today (chest, back, legs, arms, shoulders, or core), your experience level, and I'll build a plan from exercises that actually exist in the app.";
 
 export const GymTrainerChat = () => {
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        {
-            role: "assistant",
-            content: "Hey there, champ! 💪 I'm your personal gym trainer. What body part do you feel like working out today? We can hit chest, back, legs, arms, shoulders, or core!"
-        }
+        { role: "assistant", content: WELCOME_MESSAGE }
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
+
+    const CHAT_URL = `${supabaseUrl}/functions/v1/fitness-chat`;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,176 +50,121 @@ export const GymTrainerChat = () => {
         scrollToBottom();
     }, [messages]);
 
-    // Generate AI-like response based on user input
-    const generateResponse = (userMessage: string): string => {
-        const lowerMessage = userMessage.toLowerCase();
-
-        // Check if user is selecting a body part
-        const bodyParts = ['chest', 'back', 'legs', 'leg', 'arms', 'arm', 'bicep', 'tricep', 'shoulders', 'shoulder', 'core', 'abs'];
-        const mentionedBodyPart = bodyParts.find(part => lowerMessage.includes(part));
-
-        if (mentionedBodyPart && !selectedBodyPart) {
-            setSelectedBodyPart(mentionedBodyPart);
-            const matchingExercises = getExercisesForBodyPart(mentionedBodyPart);
-
-            if (matchingExercises.length > 0) {
-                const beginnerExercises = formatExerciseList(matchingExercises, 'Beginner');
-                const intermediateExercises = formatExerciseList(matchingExercises, 'Intermediate');
-
-                return `Great choice! Let's build that ${mentionedBodyPart.charAt(0).toUpperCase() + mentionedBodyPart.slice(1)}! 🔥
-
-Here are some exercises I recommend:
-
-**For Beginners:**
-${beginnerExercises || "• Check out our beginner-friendly options!"}
-
-**For Intermediate:**
-${intermediateExercises || "• Level up with these exercises!"}
-
-What's your fitness level? Are you a beginner, intermediate, or advanced? I can give you more specific recommendations!`;
-            }
-        }
-
-        // Check for difficulty level questions
-        if (lowerMessage.includes('beginner') && selectedBodyPart) {
-            const matchingExercises = getExercisesForBodyPart(selectedBodyPart);
-            const beginnerList = formatExerciseList(matchingExercises, 'Beginner');
-
-            return `Perfect! Starting smart is the key to long-term gains! 💪
-
-Here are beginner-friendly ${selectedBodyPart} exercises:
-
-${beginnerList}
-
-**Pro Tips:**
-• Focus on form over weight
-• Start with 3 sets of 10-12 reps
-• Rest 60-90 seconds between sets
-• Don't forget to warm up!
-
-Want me to explain how to do any of these exercises?`;
-        }
-
-        if ((lowerMessage.includes('intermediate') || lowerMessage.includes('advanced')) && selectedBodyPart) {
-            const matchingExercises = getExercisesForBodyPart(selectedBodyPart);
-            const level = lowerMessage.includes('advanced') ? 'Advanced' : 'Intermediate';
-            const exerciseList = formatExerciseList(matchingExercises, level);
-
-            return `Nice! Ready to push your limits! 🔥
-
-Here are ${level.toLowerCase()} ${selectedBodyPart} exercises:
-
-${exerciseList}
-
-**Pro Tips:**
-• Progressive overload is key - increase weight or reps each week
-• ${level === 'Advanced' ? 'Consider supersets for intensity' : 'Focus on mind-muscle connection'}
-• Aim for 4 sets of 8-12 reps
-• Rest 90-120 seconds for compound movements
-
-Which exercise do you want to learn more about?`;
-        }
-
-        // Check for "how to" or form questions
-        if (lowerMessage.includes('how') || lowerMessage.includes('form') || lowerMessage.includes('technique')) {
-            const mentionedExercise = exercises.find(e =>
-                lowerMessage.includes(e.name.toLowerCase())
-            );
-
-            if (mentionedExercise) {
-                return `Great question about **${mentionedExercise.name}**! Here's how to nail it:
-
-**Exercise:** ${mentionedExercise.name}
-**Target:** ${mentionedExercise.muscleGroup}
-**Level:** ${mentionedExercise.difficulty}
-**Sets/Reps:** ${mentionedExercise.duration}
-**Equipment:** ${mentionedExercise.equipment}
-
-${mentionedExercise.description || "Focus on controlled movements and proper breathing."}
-
-**Form Tips:**
-• Keep your core engaged throughout
-• Control the movement - don't rush
-• Breathe out on exertion
-• If it hurts (sharp pain), stop immediately!
-
-Ready to crush it? 💪 Anything else you want to know?`;
-            }
-        }
-
-        // General fitness questions
-        if (lowerMessage.includes('warm up') || lowerMessage.includes('warmup')) {
-            return `Warming up is CRUCIAL! Here's a quick 5-minute routine:
-
-1. **Jumping Jacks** - 30 seconds
-2. **Arm Circles** - 20 seconds each direction
-3. **Leg Swings** - 10 each leg
-4. **Bodyweight Squats** - 10 reps
-5. **Push-ups** - 5-10 reps
-
-This gets blood flowing and reduces injury risk! 🔥
-
-Ready to start your ${selectedBodyPart || 'workout'}?`;
-        }
-
-        if (lowerMessage.includes('rest') || lowerMessage.includes('recovery')) {
-            return `Recovery is where the GAINS happen! 💤
-
-**Rest Day Tips:**
-• Sleep 7-9 hours for muscle repair
-• Stay hydrated - aim for 2-3 liters daily
-• Light stretching or walking is great
-• Protein intake stays important on rest days
-
-**Between Sets:**
-• Compound exercises: 2-3 minutes
-• Isolation exercises: 60-90 seconds
-• Supersets: minimal rest
-
-Your muscles grow when you rest, not when you lift! Need anything else?`;
-        }
-
-        // Default responses
-        if (!selectedBodyPart) {
-            return `I didn't catch which body part you want to train! 🤔
-
-Pick one:
-• **Chest** - Build that powerful upper body
-• **Back** - Create that V-taper look
-• **Legs** - Never skip leg day!
-• **Arms** - Biceps and triceps gains
-• **Shoulders** - Boulder shoulder time
-• **Core** - Strong foundation
-
-What's it gonna be, champ?`;
-        }
-
-        return `Great question! 💪 
-
-I'm here to help you crush your ${selectedBodyPart} workout! You can ask me:
-• Specific exercise recommendations
-• How to perform exercises with proper form
-• Tips for beginners or advanced trainers
-• Warm-up and recovery advice
-
-What do you want to know?`;
-    };
-
     const sendMessage = async (overrideMessage?: string) => {
-        const messageText = overrideMessage || input;
+        const messageText = overrideMessage ?? input;
         if (!messageText.trim() || isLoading) return;
 
         const userMsg: Message = { role: "user", content: messageText };
-        setMessages(prev => [...prev, userMsg]);
+        const nextMessages = [...messages, userMsg];
+        setMessages(nextMessages);
         setInput("");
         setIsLoading(true);
 
-        // Simulate AI thinking delay
-        await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+        let assistantSoFar = "";
+        const upsertAssistant = (nextChunk: string) => {
+            assistantSoFar += nextChunk;
+            setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant") {
+                    return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+                }
+                return [...prev, { role: "assistant", content: assistantSoFar }];
+            });
+        };
 
-        const response = generateResponse(messageText);
-        setMessages(prev => [...prev, { role: "assistant", content: response }]);
-        setIsLoading(false);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+                "apikey": supabasePublishableKey,
+            };
+
+            if (session?.access_token) {
+                headers["Authorization"] = `Bearer ${session.access_token}`;
+            } else {
+                headers["Authorization"] = `Bearer ${supabasePublishableKey}`;
+            }
+
+            const resp = await fetch(CHAT_URL, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    messages: nextMessages,
+                    exerciseData: getExerciseSummary(),
+                }),
+            });
+
+            if (resp.status === 429 || resp.status === 402) {
+                const error = await resp.json();
+                toast({ title: "Error", description: error.error, variant: "destructive" });
+                setIsLoading(false);
+                return;
+            }
+
+            if (!resp.ok || !resp.body) throw new Error("Failed to start stream");
+
+            const reader = resp.body.getReader();
+            const decoder = new TextDecoder();
+            let textBuffer = "";
+            let streamDone = false;
+
+            while (!streamDone) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                textBuffer += decoder.decode(value, { stream: true });
+
+                let newlineIndex: number;
+                while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+                    let line = textBuffer.slice(0, newlineIndex);
+                    textBuffer = textBuffer.slice(newlineIndex + 1);
+
+                    if (line.endsWith("\r")) line = line.slice(0, -1);
+                    if (line.startsWith(":") || line.trim() === "") continue;
+                    if (!line.startsWith("data: ")) continue;
+
+                    const jsonStr = line.slice(6).trim();
+                    if (jsonStr === "[DONE]") {
+                        streamDone = true;
+                        break;
+                    }
+
+                    try {
+                        const parsed = JSON.parse(jsonStr);
+                        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+                        if (content) upsertAssistant(content);
+                    } catch (parseError) {
+                        console.warn("Failed to parse streaming chunk:", parseError);
+                        textBuffer = line + "\n" + textBuffer;
+                        break;
+                    }
+                }
+            }
+
+            if (textBuffer.trim()) {
+                for (let raw of textBuffer.split("\n")) {
+                    if (!raw) continue;
+                    if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+                    if (raw.startsWith(":") || raw.trim() === "") continue;
+                    if (!raw.startsWith("data: ")) continue;
+                    const jsonStr = raw.slice(6).trim();
+                    if (jsonStr === "[DONE]") continue;
+                    try {
+                        const parsed = JSON.parse(jsonStr);
+                        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+                        if (content) upsertAssistant(content);
+                    } catch (parseError) {
+                        console.warn("Failed to parse remaining chunk:", parseError);
+                    }
+                }
+            }
+
+            setIsLoading(false);
+        } catch (e) {
+            console.error("Gym trainer chat error:", e);
+            toast({ title: "Error", description: "Failed to send message", variant: "destructive" });
+            setIsLoading(false);
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -261,25 +175,17 @@ What do you want to know?`;
     };
 
     const resetChat = () => {
-        setSelectedBodyPart(null);
-        setMessages([
-            {
-                role: "assistant",
-                content: "Hey there, champ! 💪 I'm your personal gym trainer. What body part do you feel like working out today? We can hit chest, back, legs, arms, shoulders, or core!"
-            }
-        ]);
+        setMessages([{ role: "assistant", content: WELCOME_MESSAGE }]);
     };
 
     // Render formatted message content
     const renderMessageContent = (content: string) => {
-        // Convert **text** to bold
         const parts = content.split(/(\*\*[^*]+\*\*)/g);
         return parts.map((part, i) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
+            if (part.startsWith("**") && part.endsWith("**")) {
                 return <strong key={i}>{part.slice(2, -2)}</strong>;
             }
-            // Handle line breaks
-            return part.split('\n').map((line, j) => (
+            return part.split("\n").map((line, j) => (
                 <span key={`${i}-${j}`}>
                     {j > 0 && <br />}
                     {line}
@@ -380,25 +286,6 @@ What do you want to know?`;
 
                     <div ref={messagesEndRef} />
                 </div>
-
-                {/* Quick Actions */}
-                {!selectedBodyPart && messages.length <= 2 && (
-                    <div className="px-4 pb-2 flex flex-wrap gap-2">
-                        {['Chest', 'Back', 'Legs', 'Arms', 'Shoulders', 'Core'].map(part => (
-                            <Button
-                                key={part}
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                                onClick={() => {
-                                    sendMessage(part);
-                                }}
-                            >
-                                {part}
-                            </Button>
-                        ))}
-                    </div>
-                )}
 
                 {/* Input */}
                 <div className="p-4 border-t border-border bg-background rounded-b-lg">

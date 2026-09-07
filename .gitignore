@@ -34,4 +34,6 @@ dist-ssr
 *.zip
 new_one.zip
 
+# Supabase CLI local state
+supabase/.temp/
 

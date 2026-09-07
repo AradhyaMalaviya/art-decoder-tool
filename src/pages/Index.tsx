@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { MuscleMapContainer } from "@/components/muscle-map";
 import { GymTrainerChat } from "@/components/GymTrainerChat";
+import { FitnessChat } from "@/components/FitnessChat";
 import { exercises } from "@/data/exercises";
 
 const Index = () => {
@@ -9,8 +10,11 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* AI Gym Trainer Chatbot */}
+      {/* AI Gym Trainer Chatbot (mock) */}
       <GymTrainerChat />
+
+      {/* Fitness Coach AI (real edge function — google/gemini-2.5-flash-lite) */}
+      <FitnessChat />
 
       {/* Interactive Muscle Map - Main Feature */}
       <section className="pb-4 pt-2 px-4">
