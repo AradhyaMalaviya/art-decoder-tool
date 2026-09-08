@@ -4,10 +4,10 @@ This file is the Markdown version of the project requirements analysis. It was
 prepared by reviewing the project folders `public`, `scripts`, `src`, and
 `supabase`, plus the root project files such as `.env`, `.gitignore`,
 `bun.lockb`, `components.json`, `eslint-report.txt`, `eslint.config.js`,
-`index.html`, `new_one.zip`, `package-lock.json`, `package.json`,
-`postcss.config.js`, `README.md`, `tailwind.config.ts`, the TypeScript configs,
-`vercel.json`, `VERCEL_DEPLOYMENT.md`, `vite.config.ts`, `FitBox_PRD.md`, and
-`FitBox_Synopsis.md`.
+`index.html`, `package-lock.json`, `package.json`,
+`postcss.config.js`, `README.md`, `tailwind.config.ts`, the TypeScript
+configs, `vercel.json`, `VERCEL_DEPLOYMENT.md`, `vite.config.ts`,
+`FitBox_PRD.md`, and `FitBox_Synopsis.md`.
 
 ## Python Requirements
 
@@ -57,6 +57,8 @@ The values below are required by code or deployment docs. Secret values from
 ### Supabase Edge Functions
 
 - `LOVABLE_API_KEY` - used by `supabase/functions/fitness-chat/index.ts`.
+- `GEMINI_API_KEY` - used by `supabase/functions/project-assistant/index.ts`
+  (direct `generativelanguage.googleapis.com` call, not the Lovable gateway).
 - `SUPABASE_URL` - used by
   `supabase/functions/get-trainer-contact/index.ts`.
 - `SUPABASE_ANON_KEY` - used by
@@ -150,12 +152,13 @@ Supabase Edge Functions import these remote modules directly in Deno:
 
 | Import | Used by |
 | --- | --- |
-| `https://deno.land/std@0.168.0/http/server.ts` | `fitness-chat`, `get-trainer-contact` |
+| `https://deno.land/std@0.168.0/http/server.ts` | `fitness-chat`, `project-assistant`, `get-trainer-contact` |
 | `https://esm.sh/@supabase/supabase-js@2` | `get-trainer-contact` |
 
 ## Native and Local Imports
 
-The upload script uses Node built-ins only:
+The `scripts/` tooling (`upload-exercise-media.mjs` and
+`build-project-knowledge.mjs`) uses Node built-ins only:
 
 - `node:fs/promises`
 - `node:path`
@@ -169,9 +172,8 @@ The app uses the `@/*` TypeScript/Vite path alias configured in
 - `public` contains favicons, `robots.txt`, preview imagery, preset images, and
   exercise demo videos.
 - `src/assets` contains app images used by React components.
-- `new_one.zip` contains an exported static HTML mockup and screenshot:
-  `stitch_exercise_and_muscle_group_directory/exercise_and_muscle_group_directory/code.html`
-  and `screen.png`. It does not contain Python dependencies.
+- `*.zip` archives are gitignored (`.gitignore`); exported mockup zips are
+  not part of the committed repository.
 
 ## Lock and Tooling Files
 
@@ -184,6 +186,9 @@ The app uses the `@/*` TypeScript/Vite path alias configured in
 - `tailwind.config.ts` and `postcss.config.js` configure Tailwind CSS,
   `tailwindcss-animate`, and Autoprefixer.
 - `vercel.json` rewrites SPA routes to `index.html`.
+- `supabase/config.toml` registers the `fitness-chat`, `project-assistant`,
+  and `get-trainer-contact` edge functions, each with `verify_jwt = true`.
+- `supabase/.temp/` (Supabase CLI local state) is gitignored.
 
 ## Install Summary
 

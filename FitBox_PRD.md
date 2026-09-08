@@ -1,18 +1,18 @@
 # FitBox Mega-PRD (Technical & Product Bible)
-## Professional Edition — v1.1.0 (August 2026)
+## Professional Edition — v1.2.0 (September 2026)
 
 ---
 
 # VOLUME I: PRODUCT VISION & MARKET STRATEGY
 
 ## 1. Executive Summary
-**FitBox** is a high-performance, full-stack fitness and nutrition ecosystem designed to bridge the gap between individual training and community accountability. By leveraging a dual-AI architecture (Cloud-based LLM + Local NLP), an anatomically precision-mapped interface, and a culturally specialized Indian nutrition engine, FitBox delivers a personalized health experience that evolves with the user. The platform not only tracks metrics but fosters real-world connections through its "GymBuddy" social matching layer.
+**FitBox** is a high-performance, full-stack fitness and nutrition ecosystem designed to bridge the gap between individual training and community accountability. By leveraging multiple AI assistants, an anatomically precision-mapped interface, and a culturally specialized Indian nutrition engine, FitBox delivers a personalized health experience that evolves with the user. The platform not only tracks metrics but fosters real-world connections through its "GymBuddy" social matching layer.
 
 ## 2. Core Value Propositions
 ### 2.1 For the Individual
 - **Hyper-Personalized Programming**: Workouts generated not just by "level," but by specific anatomical inspiration (The Goku/Thor Preset System).
 - **Desi-Nutrition Mastery**: No more translating US-centric diets. FitBox understands Sattu, Paneer, and Soya Chunks.
-- **Zero-Latency AI**: A local trainer that answers common form questions instantly, regardless of internet connectivity.
+- **Layered AI Assistance**: Streamed fitness coaching plus a globally available project assistant that understands current FitBox product and codebase knowledge.
 
 ### 2.2 For the Community
 - **GymBuddy Synergy**: A points-based matching engine that finds the "perfect" training partner based on split, timing, and goals.
@@ -30,30 +30,34 @@
 
 ### Objective 3: Performance Excellence
 - **KR1**: First-token delivery for AI chat under 1.5 seconds.
-- **KR2**: 0ms latency for Local Trainer intent classification.
+- **KR2**: Keep common assistant interactions responsive through streamed responses and compact project context.
 
 ---
 
 # VOLUME II: THE TECHNICAL CORE
 
-## 4. Dual-AI Architecture
-FitBox operates on a "Hybrid-Intelligence" model, balancing the deep reasoning of cloud models with the speed of local processing.
+## 4. AI Assistant Architecture
+FitBox uses complementary cloud assistants for fitness coaching and project-aware help, with shared Supabase Edge Function deployment and server-side credential protection.
 
-### 4.1 Cloud Coach: Google Gemini 1.5 Flash (via Lovable AI Gateway)
+### 4.1 Cloud Coach: Google Gemini 2.5 Flash Lite (via Lovable AI Gateway)
 - **Deployment**: Supabase Edge Functions (Deno runtime).
 - **Communication Protocol**: Server-Sent Events (SSE) for real-time token streaming.
 - **Role**: Complex workout programming, macro-nutrient science, and long-form motivational coaching.
 - **Security & Gateway**: Key-vaulted API access (`LOVABLE_API_KEY`) via `https://ai.gateway.lovable.dev/v1/chat/completions` with server-side rate-limiting.
 
-### 4.2 Local Trainer: Custom NLP Engine
-- **Logic**: Client-side JavaScript executing Term-Frequency Inverse Document Frequency (TF-IDF) principles.
-- **Similarity Metric**: **Cosine Similarity** between user input vectors and predefined intent vectors.
-- **Intent Inventory**:
-    - `GREETING`: General engagement.
-    - `EXERCISE_REC`: Suggesting movements based on muscle groups.
-    - `NUTRITION_ADVICE`: General diet tips.
-    - `MUSCLE_INFO`: Explaining anatomical functions.
-- **Performance**: $O(1)$ intent lookup after initial vectorization.
+### 4.2 Fitness Chat and Gym Trainer
+- **Frontend**: `FitnessChat` and `GymTrainerChat` provide floating chat surfaces on the dashboard.
+- **Transport**: Both send conversation history and a compact exercise summary to the `fitness-chat` Supabase Edge Function.
+- **Model**: `google/gemini-2.5-flash-lite` through the Lovable AI Gateway.
+- **Communication**: Server-Sent Events (SSE) stream responses incrementally to the React clients.
+- **Security**: The gateway credential remains server-side in `LOVABLE_API_KEY`.
+
+### 4.3 Project Assistant
+- **Frontend**: `ProjectAssistantChat` is mounted globally in `App.tsx`, so it is available across public and authenticated routes.
+- **Knowledge**: `scripts/build-project-knowledge.mjs` generates compact project context in `src/data/projectKnowledge.ts`.
+- **Backend**: The `project-assistant` Supabase Edge Function calls Google's Gemini API directly with `gemini-2.5-flash-lite`.
+- **Communication**: The assistant returns a bounded, non-streaming JSON response with up to 20 conversation turns and 1,024 output tokens.
+- **Security**: The direct Gemini integration uses the server-side `GEMINI_API_KEY`; clients never receive the key.
 
 ## 5. State Management & Data Flow
 FitBox employs a multi-tiered state architecture to ensure data persistence, UI responsiveness, and strict schema compliance.

@@ -6,11 +6,12 @@
 
 ## 🌟 Core Feature Pillars
 
-### 🤖 Dual-AI Intelligence Engine
-FitBox operates on a **Hybrid-Intelligence** model — two complementary AI systems with distinct strengths:
+### 🤖 Multi-Assistant Intelligence Engine
+FitBox operates on a layered AI model with complementary assistants serving distinct roles:
 
-- **Cloud Coach (Google Gemini 1.5 Flash):** Deployed as a serverless **Deno Edge Function** on Supabase. Streams token-by-token responses using **Server-Sent Events (SSE)** for real-time, expert-level coaching on workout programming, biomechanics, and sports nutrition. All API keys are vault-protected server-side.
-- **Local Trainer (Custom NLP Engine):** A fully client-side, privacy-first AI (`GymTrainerChat.tsx`) operating at **0ms latency** with zero internet dependency. Uses entity extraction (12 muscle-group keywords), intent pattern matching, and exercise database filtering to answer common form, warm-up, and workout questions instantly.
+- **Cloud Coach (Google Gemini 2.5 Flash Lite):** Deployed as a serverless **Deno Edge Function** on Supabase through the Lovable AI Gateway. Streams token-by-token responses using **Server-Sent Events (SSE)** for real-time coaching on workout programming, biomechanics, and sports nutrition.
+- **Gym Trainer Chat:** `GymTrainerChat.tsx` is a dashboard chat surface using the same streamed Gemini 2.5 Flash Lite backend and a compact exercise-library context.
+- **Project Assistant:** `ProjectAssistantChat.tsx` is globally mounted and uses generated project knowledge with a direct Gemini 2.5 Flash Lite Edge Function for FitBox architecture and implementation questions.
 - **Inspiration Archetype Scorer:** The `deriveInspirationScore()` algorithm in `src/lib/onboarding.ts` analyzes character-preset tags (Goku → lean/explosive, Thor → bulky/strength, Captain America → athletic/balanced, Toji → lean/dense-muscle) to deterministically classify users into one of four training archetypes: `bulk`, `cutting`, `athletic-performance`, or `strength-hybrid`.
 
 ### 🏋️ The Interactive Training Lab
@@ -65,13 +66,13 @@ A structured, Zod-validated onboarding flow (`Onboarding.tsx`) that collects use
 | **Build Tool** | Vite | 5.4.19 |
 | **Styling** | Tailwind CSS + shadcn/ui + Radix UI | 3.4.17 |
 | **Backend & Auth** | Supabase (PostgreSQL, Auth, Edge Functions, RLS, Realtime) | 2.58.0 |
-| **AI (Cloud)** | Google Gemini 1.5 Flash via Deno Edge Function | — |
-| **AI (Local)** | Custom NLP (entity extraction + intent matching) | — |
+| **AI (Fitness)** | Google Gemini 2.5 Flash Lite via Lovable Gateway and Deno Edge Function | — |
+| **AI (Project)** | Google Gemini 2.5 Flash Lite via direct Deno Edge Function | — |
 | **Server State** | TanStack Query | v5.83.0 |
 | **Validation** | Zod + React Hook Form | 3.25.76 |
 | **Routing** | React Router DOM | 6.30.1 |
 | **Charts** | Recharts | 2.15.4 |
-| **Animations** | Framer Motion + Canvas Confetti | 11.2.10 |
+| **Animations** | Framer Motion + Canvas Confetti | 12.38.0 |
 | **Icons** | Lucide React | 0.462.0 |
 | **Toasts** | Sonner | 1.7.4 |
 
@@ -83,12 +84,16 @@ A structured, Zod-validated onboarding flow (`Onboarding.tsx`) that collects use
 fitbox/
 ├── src/
 │   ├── components/
-│   │   ├── gymbuddy/         # GymBuddyCard, MatchOverlay, ChatMessage
-│   │   ├── muscle-map/       # SVG interactive anatomy diagram components
-│   │   ├── workout/          # WorkoutLogCard, ExerciseDrawer, SetRow
+│   │   ├── gymbuddy/         # GymBuddyCard, GymBuddyRadar, GymBuddyMatchOverlay,
+│   │   │                     # GymBuddySessionModal, GymBuddySettings, WorkoutStreak
+│   │   ├── muscle-map/       # InteractiveBodyDiagram, MuscleMapSVG, ExerciseResults,
+│   │   │                     # ExerciseResultCard, EquipmentFilter
+│   │   ├── workout/          # AddExerciseDrawer, ExerciseLogCard, StartWorkoutCard,
+│   │   │                     # WorkoutHeader
 │   │   ├── ui/               # shadcn/ui design system (Button, Card, Dialog, etc.)
-│   │   ├── GymTrainerChat.tsx   # Local NLP trainer widget (offline, 0ms latency)
-│   │   ├── FitnessChat.tsx      # Cloud Gemini SSE streaming chat component
+│   │   ├── GymTrainerChat.tsx   # Dashboard Gemini SSE trainer chat
+│   │   ├── FitnessChat.tsx      # Dashboard Gemini SSE fitness chat
+│   │   ├── ProjectAssistantChat.tsx # Global project-aware assistant
 │   │   └── Header.tsx           # Global nav with auth state
 │   │
 │   ├── contexts/
@@ -122,7 +127,8 @@ fitbox/
 │   │
 │   ├── data/
 │   │   ├── exercises.ts             # 50+ exercise objects with full metadata
-│   │   └── indianFoodDatabase.ts    # 150+ Indian food items with macros & INR cost
+│   │   ├── indianFoodDatabase.ts    # 150+ Indian food items with macros & INR cost
+│   │   └── projectKnowledge.ts      # AUTO-GENERATED project context (npm run build:knowledge)
 │   │
 │   └── lib/
 │       ├── onboarding.ts            # Zod schemas + deriveInspirationScore() algorithm
@@ -130,10 +136,12 @@ fitbox/
 │       └── utils.ts                 # cn() tailwind class merger + helpers
 │
 ├── supabase/
+│   ├── config.toml                  # project_id + verify_jwt per edge function
 │   ├── functions/
-│   │   ├── fitness-chat/            # Gemini 1.5 Flash SSE streaming edge function
+│   │   ├── fitness-chat/            # Gemini 2.5 Flash Lite SSE streaming edge function
+│   │   ├── project-assistant/       # Direct Gemini project assistant
 │   │   └── get-trainer-contact/     # Secure PII retrieval + audit logging
-│   └── migrations/                  # 13 chronological SQL migration files
+│   └── migrations/                  # 14 chronological SQL migration files
 │       ├── 20251007…                # Initial profiles + workouts schema
 │       ├── 20251101134400…          # Trainer data additions
 │       ├── 20251101134431…          # Subscriptions, payments, assigned_trainers
@@ -147,6 +155,9 @@ fitbox/
 │       ├── 20260427000000…          # Full GymBuddy social schema
 │       └── 20260427000001…          # GymBuddy realtime publication
 │
+├── scripts/
+│   ├── build-project-knowledge.mjs # Generates src/data/projectKnowledge.ts
+│   └── upload-exercise-media.mjs   # Uploads exercise videos/posters to Supabase Storage
 ├── tailwind.config.ts              # Custom design tokens, dark-mode theme
 ├── vite.config.ts                  # Path aliases (@/) + build optimisation
 └── tsconfig.json                   # Strict TypeScript configuration
@@ -163,16 +174,18 @@ fitbox/
 | `/onboarding` | `Onboarding` | Yes |
 | `/dashboard` | `Index` | Yes |
 | `/exercises` | `Exercises` | Yes |
-| `/exercises/:id` | `ExerciseDetail` | Yes |
-| `/generate` | `GenerateWorkout` | Yes |
+| `/exercises/:muscleId` | `Exercises` (muscle-filtered) | Yes |
+| `/exercise/:exerciseId` | `ExerciseDetail` | Yes |
+| `/generate-workout` | `GenerateWorkout` | Yes |
 | `/workout/active` | `ActiveWorkout` | Yes |
 | `/nutrition` | `Nutrition` | Yes |
 | `/nutrition/questionnaire` | `NutritionQuestionnaire` | Yes |
 | `/nutrition/roadmap` | `NutritionRoadmap` | Yes |
-| `/gymbuddy` | `GymBuddyDiscover` | Yes |
+| `/gymbuddy/setup` | `GymBuddyProfileSetup` | Yes |
+| `/gymbuddy/discover` | `GymBuddyDiscover` | Yes |
 | `/gymbuddy/matches` | `GymBuddyMatches` | Yes |
 | `/gymbuddy/chat/:matchId` | `GymBuddyChat` | Yes |
-| `/gymbuddy/profile` | `GymBuddyProfileSetup` | Yes |
+| `/gymbuddy/settings` | `GymBuddySettings` | Yes |
 
 ---
 
@@ -180,8 +193,8 @@ fitbox/
 
 1. **Clone & Install**
    ```bash
-   git clone https://github.com/AaradhyaMalaviya/FitBox.git
-   cd fitbox
+   git clone https://github.com/AradhyaMalaviya/art-decoder-tool.git
+   cd art-decoder-tool
    npm install
    ```
 
@@ -189,20 +202,26 @@ fitbox/
    Create a `.env` file in the root:
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
    ```
    In the Supabase Edge Function secrets dashboard, set:
    ```
    LOVABLE_API_KEY=your_lovable_api_key
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
 3. **Database Setup**
-   Apply all 13 migrations via the Supabase CLI:
+   Apply all 14 migrations via the Supabase CLI:
    ```bash
    supabase db push
    ```
 
-4. **Run in Development**
+4. **Deploy Edge Functions**
+   ```bash
+   supabase functions deploy fitness-chat project-assistant get-trainer-contact
+   ```
+
+5. **Run in Development**
    ```bash
    npm run dev
    ```
