@@ -1,13 +1,14 @@
 import { useGymBuddyStreak } from "@/hooks/useGymBuddyStreak";
 import { Flame, Medal, Award, Crown } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import type { ReactNode } from "react";
 
 export function WorkoutStreak({ matchId }: { matchId: string }) {
   const { streak, hasLoggedThisWeek, loading } = useGymBuddyStreak(matchId);
 
   if (loading) return <div className="h-20 animate-pulse bg-muted rounded-xl border"></div>;
 
-  let milestoneIcon = null;
+  let milestoneIcon: ReactNode = null;
   let milestoneText = "";
   
   if (streak >= 26) {

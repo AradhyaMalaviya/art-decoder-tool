@@ -43,9 +43,20 @@ export function GymBuddyNotificationProvider({ children }: { children: React.Rea
         .or(`user1_id.eq.${activeAuthUserId},user2_id.eq.${activeAuthUserId}`);
         
       if (matchData && matchData.length > 0) {
-        setMatches(matchData);
+        const validMatches: GymBuddyMatch[] = matchData.flatMap(match => {
+          if (typeof match.user1_id !== 'string' || typeof match.user2_id !== 'string') return [];
+          return [{
+            ...match,
+            user1_id: match.user1_id,
+            user2_id: match.user2_id,
+            shared_streak: match.shared_streak ?? 0,
+            matched_at: match.matched_at ?? undefined,
+            last_session_logged: match.last_session_logged ?? undefined,
+          }];
+        });
+        setMatches(validMatches);
         
-        const pIds = matchData.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
+        const pIds = validMatches.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
         const { data: profiles } = await supabase
           .from('gymbuddy_profiles')
           .select('*')

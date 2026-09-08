@@ -37,7 +37,10 @@ export function useGymBuddyChat(matchId: string) {
         .single();
 
       if (matchError) throw matchError;
-      setMatchDetails(matchData);
+      if (!matchData.user1_id || !matchData.user2_id) {
+        throw new Error('Match record is missing a participant');
+      }
+      setMatchDetails(matchData as GymBuddyMatch);
 
       const partnerId = matchData.user1_id === activeAuthUserId ? matchData.user2_id : matchData.user1_id;
       

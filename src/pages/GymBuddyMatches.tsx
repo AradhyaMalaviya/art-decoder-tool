@@ -52,7 +52,18 @@ export default function GymBuddyMatches() {
       }
 
       // 2. Extract partner IDs
-      const partnerIds = matchData.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
+      const validMatches: GymBuddyMatch[] = matchData.flatMap(match => {
+        if (typeof match.user1_id !== 'string' || typeof match.user2_id !== 'string') return [];
+        return [{
+          ...match,
+          user1_id: match.user1_id,
+          user2_id: match.user2_id,
+          shared_streak: match.shared_streak ?? 0,
+          matched_at: match.matched_at ?? undefined,
+          last_session_logged: match.last_session_logged ?? undefined,
+        }];
+      });
+      const partnerIds = validMatches.map(m => m.user1_id === activeAuthUserId ? m.user2_id : m.user1_id);
 
       // 3. Fetch partner profiles
       const { data: profileData, error: profileError } = await supabase
@@ -72,7 +83,7 @@ export default function GymBuddyMatches() {
       if (messageError) throw messageError;
 
       // 5. Combine data
-      const combined = matchData.map(match => {
+      const combined = validMatches.map(match => {
         const partnerId = match.user1_id === activeAuthUserId ? match.user2_id : match.user1_id;
         const partner = profileData?.find(p => p.id === partnerId);
         const unreadCount = messageData?.filter(m => m.match_id === match.id).length || 0;
